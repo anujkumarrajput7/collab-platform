@@ -1,31 +1,44 @@
-import React from "react";
+import "./Signup.css";
 
-const Signup = () => {
+function Signup() {
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded shadow">
-      <h2 className="text-xl font-bold mb-4">Signup</h2>
-      <form>
-        <input
-          type="text"
-          placeholder="Name"
-          className="w-full border p-2 mb-3 rounded"
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full border p-2 mb-3 rounded"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full border p-2 mb-3 rounded"
-        />
-        <button className="w-full bg-green-600 text-white p-2 rounded">
-          Signup
-        </button>
-      </form>
+    <div className="signup-page">
+      <div className="signup-card">
+        <h2>Create Account 🚀</h2>
+        <p className="subtitle">Join CollabMart and start collaborating</p>
+
+        <form>
+          <div className="input-group">
+            <label>Full Name</label>
+            <input type="text" placeholder="Enter your full name" />
+          </div>
+
+          <div className="input-group">
+            <label>Email</label>
+            <input type="email" placeholder="Enter your email" />
+          </div>
+
+          <div className="input-group">
+            <label>Password</label>
+            <input type="password" placeholder="Enter your password" />
+          </div>
+
+          <div className="input-group">
+            <label>Confirm Password</label>
+            <input type="password" placeholder="Confirm your password" />
+          </div>
+
+          <button type="submit" className="signup-btn">Sign Up</button>
+        </form>
+
+        <div className="extra-links">
+          <p>
+            Already have an account? <a href="/login">Login</a>
+          </p>
+        </div>
+      </div>
     </div>
   );
-};
+}
 
 export default Signup;
