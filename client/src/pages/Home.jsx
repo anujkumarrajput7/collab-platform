@@ -1,19 +1,28 @@
-import React from "react";
-import Card from "../components/Card";
+import "./Home.css";
 
-const Home = () => {
+function Home() {
+  const companies = [
+    { name: "Google", desc: "Cloud & AI Collaboration", logo: "https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg" },
+    { name: "Microsoft", desc: "Enterprise & Azure Services", logo: "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg" },
+    { name: "Amazon", desc: "AWS & E-commerce Solutions", logo: "https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" },
+    { name: "Tesla", desc: "AI & Automotive Research", logo: "https://upload.wikimedia.org/wikipedia/commons/b/bd/Tesla_Motors.svg" },
+    { name: "OpenAI", desc: "Artificial Intelligence & GPT", logo: "https://upload.wikimedia.org/wikipedia/commons/4/4b/OpenAI_Logo.svg" }
+  ];
+
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Welcome to CollabPlatform</h2>
-      <p className="mb-6">Connect Influencers & Startups easily.</p>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card title="Find Creators" description="Search influencers by category and followers." />
-        <Card title="For Companies" description="Startups can collaborate with creators for ads." />
-        <Card title="Easy Connect" description="Chat and email integration for smooth collaboration." />
+    <div className="home-container">
+      <h1>🤝 Companies Collaborating on Collab Platform</h1>
+      <div className="company-grid">
+        {companies.map((company, index) => (
+          <div className="company-card" key={index}>
+            <img src={company.logo} alt={company.name} className="company-logo" />
+            <h2>{company.name}</h2>
+            <p>{company.desc}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
-};
+}
 
 export default Home;

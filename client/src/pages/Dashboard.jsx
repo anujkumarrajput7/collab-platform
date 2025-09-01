@@ -1,12 +1,10 @@
-import React from "react";
-
-const Dashboard = () => {
+function Dashboard() {
   return (
-    <div>
-      <h2 className="text-2xl font-bold">Dashboard</h2>
-      <p>Welcome back! Here you can manage your collaborations.</p>
+    <div style={{ padding: "20px" }}>
+      <h1>Dashboard 📊</h1>
+      <p>Here you can manage your projects and collaborations.</p>
     </div>
   );
-};
+}
 
 export default Dashboard;

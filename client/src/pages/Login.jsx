@@ -1,26 +1,35 @@
-import React from "react";
+import "./Login.css";
 
-const Login = () => {
+function Login() {
   return (
-    <div className="max-w-md mx-auto bg-white p-6 rounded shadow">
-      <h2 className="text-xl font-bold mb-4">Login</h2>
-      <form>
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full border p-2 mb-3 rounded"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full border p-2 mb-3 rounded"
-        />
-        <button className="w-full bg-blue-600 text-white p-2 rounded">
-          Login
-        </button>
-      </form>
+    <div className="login-page">
+      <div className="login-card">
+        <h2>Welcome Back 👋</h2>
+        <p className="subtitle">Login to your CollabMart account</p>
+
+        <form>
+          <div className="input-group">
+            <label>Email or Username</label>
+            <input type="text" placeholder="Enter your email or username" />
+          </div>
+
+          <div className="input-group">
+            <label>Password</label>
+            <input type="password" placeholder="Enter your password" />
+          </div>
+
+          <button type="submit" className="login-btn">Login</button>
+        </form>
+
+        <div className="extra-links">
+          <a href="#">Forgot Password?</a>
+          <p>
+            Don’t have an account? <a href="/signup">Sign up</a>
+          </p>
+        </div>
+      </div>
     </div>
   );
-};
+}
 
 export default Login;
