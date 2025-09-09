@@ -1,22 +1,17 @@
-import express from "express";
-import dotenv from "dotenv";
-import connectDB from "./config/db.js";
-import authRoutes from "./routes/auth.routes.js";
-
-dotenv.config();
+// src/index.js
+const express = require("express");
+const connectDB = require("./config/db"); // 👈 adjust path if needed
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 
-// Middleware
-app.use(express.json());
-
-// DB Connection
+// connect to DB
 connectDB();
 
-// Routes
-app.use("/api/auth", authRoutes);
+app.get("/", (req, res) => {
+  res.send("Server is running and MongoDB is connected ✅");
+});
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });

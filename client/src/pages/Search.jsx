@@ -1,30 +1,20 @@
-import React, { useState } from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Search from "./pages/Search";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
-const Search = () => {
-  const [query, setQuery] = useState("");
-
-  const handleSearch = () => {
-    alert(`Searching for: ${query}`);
-  };
-
+function App() {
   return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Search Creators</h2>
-      <input
-        type="text"
-        placeholder="Enter creator name or category"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="border p-2 rounded w-2/3"
-      />
-      <button
-        onClick={handleSearch}
-        className="ml-2 bg-blue-600 text-white p-2 rounded"
-      >
-        Search
-      </button>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/search" element={<Search />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
+    </Router>
   );
-};
+}
 
-export default Search;
+export default App;
