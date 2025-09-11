@@ -11,7 +11,7 @@ function Home() {
 
   return (
     <div className="home-container">
-      <h1>🤝 Companies Collaborating on Collab Platform</h1>
+      <h1>🤝 Anmol Companies Collaborating on Collab Platform</h1>
       <div className="company-grid">
         {companies.map((company, index) => (
           <div className="company-card" key={index}>
