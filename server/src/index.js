@@ -1,17 +1,11 @@
-// src/index.js
 const express = require("express");
-const connectDB = require("./config/db"); // 👈 adjust path if needed
+const connectDB = require("./config/db");
+const startupRoutes = require("./routes/startup.routes");
 
 const app = express();
-const PORT = 5000;
-
-// connect to DBadd
+app.use(express.json()); // 🔑 so req.body works
 connectDB();
 
-app.get("/", (req, res) => {
-  res.send("Server is running and MongoDB is connected ✅");
-});
-//
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+app.use("/api/startups", startupRoutes); // ✅ route registered
+
+app.listen(5000, () => console.log("Server running on port 5000"));

@@ -3,11 +3,10 @@ const mongoose = require("mongoose");
 const startupSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
-    description: String,
-    category: String,
-    location: String,
-    founder: String,
-    website: String,
+    industry: { type: String, required: true },
+    location: { type: String },
+    description: { type: String },
+    website: { type: String },
   },
   { timestamps: true }
 );
