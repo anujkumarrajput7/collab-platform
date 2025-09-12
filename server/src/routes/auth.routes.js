@@ -3,22 +3,21 @@ const router = express.Router();
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 
-// generate token function
 const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+  return jwt.sign({ id }, process.env.JWT_SECRET || "defaultsecret", {
+    expiresIn: "30d",
+  });
 };
 
-// @route   POST /api/auth/signup
+// @route POST /api/auth/signup
 router.post("/signup", async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
-    // ✅ Validation check
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Please fill all fields" });
     }
 
-    // check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ message: "User already exists" });
@@ -38,12 +37,12 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-// @route   POST /api/auth/login
+// @route POST /api/auth/login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select("+password");
     if (user && (await user.matchPassword(password))) {
       res.json({
         _id: user._id,

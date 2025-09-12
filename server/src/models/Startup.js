@@ -2,8 +2,8 @@ const mongoose = require("mongoose");
 
 const startupSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true },
-    industry: { type: String, required: true },
+    name: { type: String, required: true, index: true },
+    industry: { type: String, required: true, index: true },
     location: { type: String },
     description: { type: String },
     website: { type: String },

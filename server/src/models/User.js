@@ -11,10 +11,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      lowercase: true, // ✅ always store lowercase
     },
     password: {
       type: String,
       required: true,
+      select: false, // ✅ don't return password by default
     },
     role: {
       type: String,
@@ -25,7 +27,7 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// password encrypt before saving
+// Encrypt password before saving
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
@@ -33,7 +35,7 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// match password method
+// Match password method
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
