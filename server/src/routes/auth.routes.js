@@ -13,6 +13,11 @@ router.post("/signup", async (req, res) => {
   try {
     const { name, email, password, role } = req.body;
 
+    // ✅ Validation check
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "Please fill all fields" });
+    }
+
     // check if user already exists
     const userExists = await User.findOne({ email });
     if (userExists) {
