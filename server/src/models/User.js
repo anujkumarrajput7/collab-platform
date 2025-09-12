@@ -1,17 +1,28 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
+const socialProfileSchema = new mongoose.Schema({
+  platform: { type: String, enum: ["instagram", "youtube", "tiktok", "other"], default: "other" },
+  handle: String,
+  followersCount: { type: Number, default: 0 },
+  verified: { type: Boolean, default: false },
+  proofUrl: String // link to screenshot or analytics (for manual verification)
+});
+
 const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true, select: true },
-    role: { type: String, enum: ["influencer", "company"], default: "influencer" },
+    password: { type: String, required: true }, // selected by default
+    role: { type: String, enum: ["influencer", "company", "admin"], default: "influencer" },
+    bio: String,
+    socialProfiles: [socialProfileSchema],
+    // stats or other fields can be added
   },
   { timestamps: true }
 );
 
-// hash password before saving
+// hash password
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
@@ -19,9 +30,8 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-// check password match
-userSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+userSchema.methods.matchPassword = async function (entered) {
+  return await bcrypt.compare(entered, this.password);
 };
 
 module.exports = mongoose.model("User", userSchema);

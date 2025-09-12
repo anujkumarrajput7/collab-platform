@@ -4,10 +4,10 @@ const startupSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     industry: { type: String, required: true },
-    location: { type: String },
-    description: { type: String },
-    website: { type: String },
-    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" }
+    location: String,
+    description: String,
+    website: String,
+    createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   },
   { timestamps: true }
 );

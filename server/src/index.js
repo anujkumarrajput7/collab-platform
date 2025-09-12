@@ -1,8 +1,16 @@
 const express = require("express");
 require("dotenv").config();
 const connectDB = require("./config/db");
+const errorHandler = require("./middleware/errorMiddleware");
+
 const authRoutes = require("./routes/auth.routes");
 const startupRoutes = require("./routes/startup.routes");
+const influencerRoutes = require("./routes/influencer.routes");
+const campaignRoutes = require("./routes/campaign.routes");
+const applicationRoutes = require("./routes/application.routes");
+const paymentRoutes = require("./routes/payment.routes");
+const reviewRoutes = require("./routes/review.routes");
+const messageRoutes = require("./routes/message.routes");
 
 const app = express();
 app.use(express.json());
@@ -10,19 +18,21 @@ app.use(express.json());
 // connect DB
 connectDB();
 
-// routes
+// register routes
 app.use("/api/auth", authRoutes);
 app.use("/api/startups", startupRoutes);
+app.use("/api/influencers", influencerRoutes);
+app.use("/api/campaigns", campaignRoutes);
+app.use("/api/applications", applicationRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/messages", messageRoutes);
 
-app.get("/", (req, res) => {
-  res.send("🚀 API is running...");
-});
+// root
+app.get("/", (req, res) => res.send("🚀 Collab Platform API is running..."));
 
-// 404
-app.use((req, res) => {
-  res.status(404).json({ message: "Route not found" });
-});
+// error handler (should be last)
+app.use(errorHandler);
 
-// start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`🚀 Server running on http://localhost:${PORT}`));
