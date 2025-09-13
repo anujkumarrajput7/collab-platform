@@ -1,4 +1,4 @@
-# Collab Platform - Backend (MVP)
+# Collab Platform - Backend 
 
 ## Setup
 1. Clone / copy files.
