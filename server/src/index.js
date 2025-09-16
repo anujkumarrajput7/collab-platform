@@ -29,7 +29,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/messages", messageRoutes);
 
 // root
-app.get("/", (req, res) => res.send("🚀 Collab Platform API is running..."));
+app.get("/", (req, res) => res.send("🚀Anmol's Collab Platform API is running..."));
 
 // error handler (should be last)
 app.use(errorHandler);
