@@ -12,10 +12,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/",
+          "raw": "http://localhost:5001/",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": [""]
         }
       }
@@ -32,10 +32,10 @@
           "raw": "{\n  \"name\": \"Test User\",\n  \"email\": \"test@example.com\",\n  \"password\": \"123456\",\n  \"role\": \"company\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/auth/signup",
+          "raw": "http://localhost:5001/api/auth/signup",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "auth", "signup"]
         }
       }
@@ -52,10 +52,10 @@
           "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"123456\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/auth/login",
+          "raw": "http://localhost:5001/api/auth/login",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "auth", "login"]
         }
       }
@@ -66,10 +66,10 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "http://localhost:5000/api/startups",
+          "raw": "http://localhost:5001/api/startups",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "startups"]
         }
       }
@@ -86,10 +86,10 @@
           "raw": "{\n  \"name\": \"My Startup\",\n  \"industry\": \"Education\",\n  \"location\": \"Delhi\",\n  \"description\": \"We make edtech products\"\n}"
         },
         "url": {
-          "raw": "http://localhost:5000/api/startups",
+          "raw": "http://localhost:5001/api/startups",
           "protocol": "http",
           "host": ["localhost"],
-          "port": "5000",
+          "port": "5001",
           "path": ["api", "startups"]
         }
       }
