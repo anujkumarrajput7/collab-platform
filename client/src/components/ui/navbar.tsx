@@ -8,12 +8,14 @@ import {
   Users, 
   Briefcase,
   Menu,
-  X
+  X,
+  ChevronDown  // ADD THIS IMPORT
 } from "lucide-react";
 import { useState } from "react";
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSignInOpen, setIsSignInOpen] = useState(false); // ADD THIS STATE
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
@@ -57,9 +59,39 @@ export function Navbar() {
             <Button variant="ghost" size="icon">
               <MessageSquare className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="sm">
-              Sign In
-            </Button>
+            
+            {/* REPLACE THIS SIGN IN BUTTON WITH DROPDOWN */}
+            <div className="relative">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setIsSignInOpen(!isSignInOpen)}
+                className="flex items-center space-x-1"
+              >
+                <span>Sign In</span>
+                <ChevronDown className="h-3 w-3" />
+              </Button>
+              
+              {isSignInOpen && (
+                <div className="absolute right-0 top-full mt-2 w-32 bg-background border border-border rounded-md shadow-lg z-50">
+                  <div className="py-1">
+                    <a 
+                      href="/login" 
+                      className="block px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-smooth"
+                    >
+                      Login
+                    </a>
+                    <a 
+                      href="/signup" 
+                      className="block px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-smooth"
+                    >
+                      Sign Up
+                    </a>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <Button variant="hero" size="sm">
               Join CREATERRA
             </Button>
@@ -95,9 +127,19 @@ export function Navbar() {
               </a>
             </div>
             <div className="flex flex-col space-y-2 pt-4 border-t border-border/40">
-              <Button variant="outline" className="w-full">
-                Sign In
-              </Button>
+              {/* Mobile Sign In Options */}
+              <div className="space-y-2">
+                <a href="/login" className="block">
+                  <Button variant="outline" className="w-full">
+                    Login
+                  </Button>
+                </a>
+                <a href="/signup" className="block">
+                  <Button variant="outline" className="w-full">
+                    Sign Up
+                  </Button>
+                </a>
+              </div>
               <Button variant="hero" className="w-full">
                 Join CREATERRA
               </Button>
