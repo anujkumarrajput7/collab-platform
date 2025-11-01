@@ -25,3 +25,6 @@ Thumbs.db
 # Misc
 *.bak
 *.tmp
+
+# Deployment docs with sensitive info
+DEPLOYMENT.md
