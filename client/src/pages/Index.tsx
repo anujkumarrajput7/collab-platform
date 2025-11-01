@@ -28,7 +28,7 @@ export default function Index() {
         {/* Navigation */}
         <nav className="container mx-auto px-4 py-6">
           <div className="flex justify-between items-center">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">Collab Platform</h1>
+            <img src="/logo.png" alt="CREATERRA" className="h-12 w-auto object-contain" />
             <div className="flex gap-4">
               <Link to="/login">
                 <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">Login</Button>
@@ -48,10 +48,10 @@ export default function Index() {
             </div>
             <h1 className="text-6xl md:text-7xl font-bold mb-6 leading-tight">
               <span className="bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-                Connect Influencers
+                Real-Time Creator
               </span>
               <br />
-              <span className="text-white">with Brands</span>
+              <span className="text-white">Brand Collaboration</span>
             </h1>
             <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
               The ultimate platform for influencers and companies to collaborate on marketing campaigns.
@@ -91,7 +91,7 @@ export default function Index() {
         {/* Features */}
         <div className="container mx-auto px-4 py-20">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-white mb-4">Why Choose Collab Platform?</h2>
+            <h2 className="text-4xl font-bold text-white mb-4">Why Choose CREATERRA?</h2>
             <p className="text-gray-400 text-lg">Everything you need to build successful brand collaborations</p>
           </div>
           
@@ -131,7 +131,7 @@ export default function Index() {
         {/* Footer */}
         <footer className="container mx-auto px-4 py-12 border-t border-white/10">
           <div className="text-center text-gray-400">
-            <p className="mb-2">© 2025 Collab Platform. All rights reserved.</p>
+            <p className="mb-2">© 2025 CREATERRA. All rights reserved.</p>
             <p className="text-sm">Built with ❤️ for creators and brands worldwide</p>
           </div>
         </footer>

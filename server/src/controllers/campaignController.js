@@ -1,9 +1,14 @@
 const Campaign = require("../models/Campaign");
 const Startup = require("../models/Startup");
+const { emitCampaignCreated } = require('../utils/socket');
 
 exports.create = async (req, res) => {
   try {
-    const { title, description, startupId, platforms, minFollowers, category, budget, requirements } = req.body;
+    const { 
+      title, description, startupId, platforms, minFollowers, category, 
+      budget, requirements, fastestWins, deliveryTime, urgency, coinsReward 
+    } = req.body;
+    
     if (!title || !startupId) return res.status(400).json({ message: "title and startupId required" });
 
     // basic check: startup belongs to user or admin
@@ -13,10 +18,24 @@ exports.create = async (req, res) => {
       return res.status(403).json({ message: "Not allowed to create campaign for this startup" });
     }
 
+    // Set expiry if delivery time is specified
+    let expiresAt = null;
+    if (deliveryTime) {
+      expiresAt = new Date(Date.now() + deliveryTime * 60 * 60 * 1000);
+    }
+
     const campaign = await Campaign.create({
       title, description, startup: startupId, createdBy: req.user._id,
-      platforms, minFollowers, category, budget, requirements
+      platforms, minFollowers, category, budget, requirements,
+      fastestWins, deliveryTime, urgency, coinsReward, expiresAt
     });
+    
+    // Populate for socket emission
+    await campaign.populate('startup createdBy');
+    
+    // Emit real-time event
+    emitCampaignCreated(campaign);
+    
     res.status(201).json(campaign);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -169,3 +169,39 @@ export const influencersApi = {
     });
   },
 };
+
+// Proof Submission API
+export const proofApi = {
+  submit: async (applicationId: string, data: { proofUrl: string; caption: string }) => {
+    return apiCall(`/applications/${applicationId}/proof`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+  
+  verify: async (applicationId: string, approved: boolean) => {
+    return apiCall(`/applications/${applicationId}/verify`, {
+      method: 'POST',
+      body: JSON.stringify({ approved }),
+    });
+  },
+};
+
+// Leaderboard API
+export const leaderboardApi = {
+  getAll: async (params?: { timeframe?: string; limit?: number }) => {
+    const queryString = params
+      ? '?' + new URLSearchParams(params as any).toString()
+      : '';
+    return apiCall(`/leaderboard${queryString}`, { method: 'GET' });
+  },
+  
+  getMyRank: async () => {
+    return apiCall('/leaderboard/my-rank', { method: 'GET' });
+  },
+  
+  getLiveActivity: async (limit?: number) => {
+    const queryString = limit ? `?limit=${limit}` : '';
+    return apiCall(`/leaderboard/activity${queryString}`, { method: 'GET' });
+  },
+};

@@ -13,11 +13,27 @@ const userSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true }, // selected by default
+    password: { type: String, required: true },
     role: { type: String, enum: ["influencer", "company", "admin"], default: "influencer" },
     bio: String,
     socialProfiles: [socialProfileSchema],
-    // stats or other fields can be added
+    // Gamification for influencers
+    stats: {
+      coins: { type: Number, default: 0 },
+      totalEarnings: { type: Number, default: 0 },
+      campaignsCompleted: { type: Number, default: 0 },
+      currentStreak: { type: Number, default: 0 },
+      bestStreak: { type: Number, default: 0 },
+      lastActiveDate: Date,
+      avgResponseTime: { type: Number, default: 0 }, // in hours
+      rating: { type: Number, default: 5.0, min: 0, max: 5 },
+      totalReviews: { type: Number, default: 0 }
+    },
+    achievements: [{
+      id: String,
+      name: String,
+      earnedAt: { type: Date, default: Date.now }
+    }]
   },
   { timestamps: true }
 );
