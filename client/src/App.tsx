@@ -24,7 +24,8 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const RequireAuth = ({ children }: { children: JSX.Element }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) return null;
   return isAuthenticated ? children : <Navigate to="/login" replace />;
 };
 

@@ -3,9 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { applicationsApi } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function Applications() {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [items, setItems] = useState<any[]>([]);
   const load = async () => setItems(await applicationsApi.list());
   useEffect(() => { load(); }, []);
@@ -21,17 +23,21 @@ export default function Applications() {
             {items.map((a) => (
               <Card key={a._id} className="bg-slate-900/40 border-purple-500/20">
                 <CardHeader>
-                  <CardTitle className="text-lg">{a.campaign?.title} • {a.influencer?.name}</CardTitle>
+                  <CardTitle className="text-lg">{a.campaign?.title || 'Untitled Campaign'} • {a.influencer?.name || 'Influencer'}</CardTitle>
                 </CardHeader>
                 <CardContent className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-400">Status: {a.status}</p>
                     {a.coverMessage && <p className="text-sm text-gray-400">“{a.coverMessage}”</p>}
                   </div>
-                  <div className="flex gap-2">
-                    <Button onClick={async()=>{ await applicationsApi.decide(a._id,'accept'); toast({title:'Accepted'}); load(); }} className="bg-emerald-600 hover:bg-emerald-700">Accept</Button>
-                    <Button onClick={async()=>{ await applicationsApi.decide(a._id,'reject'); toast({title:'Rejected'}); load(); }} variant="destructive">Reject</Button>
-                  </div>
+                  {user?.role === 'company' ? (
+                    <div className="flex gap-2">
+                      <Button disabled={a.status!=='pending'} onClick={async()=>{ await applicationsApi.decide(a._id,'accept'); toast({title:'Accepted'}); load(); }} className="bg-emerald-600 hover:bg-emerald-700">Accept</Button>
+                      <Button disabled={a.status!=='pending'} onClick={async()=>{ await applicationsApi.decide(a._id,'reject'); toast({title:'Rejected'}); load(); }} variant="destructive">Reject</Button>
+                    </div>
+                  ) : (
+                    <div className="text-xs text-gray-500">You can view application status here.</div>
+                  )}
                 </CardContent>
               </Card>
             ))}

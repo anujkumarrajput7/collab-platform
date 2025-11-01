@@ -138,17 +138,15 @@ export default function Dashboard() {
               >
                 <Search className="h-5 w-5" />
               </Button>
+              {/* Common shortcuts */}
+              <Button onClick={() => navigate('/feed')} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">Feed</Button>
+              <Button onClick={() => navigate('/applications')} className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">Applications</Button>
+              {/* Role-based extras */}
               {user.role === 'influencer' && (
-                <>
-                  <Button onClick={() => navigate('/feed')} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">Feed</Button>
-                  <Button onClick={() => navigate('/reels')} className="bg-gradient-to-r from-pink-600 to-orange-600 hover:from-pink-700 hover:to-orange-700">Reels</Button>
-                </>
+                <Button onClick={() => navigate('/reels')} className="bg-gradient-to-r from-pink-600 to-orange-600 hover:from-pink-700 hover:to-orange-700">Reels</Button>
               )}
               {user.role === 'company' && (
-                <>
-                  <Button onClick={() => navigate('/applications')} className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">Applications</Button>
-                  <Button onClick={() => navigate('/startups')} className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">Startups</Button>
-                </>
+                <Button onClick={() => navigate('/startups')} className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">Startups</Button>
               )}
               {user.role === 'admin' && (
                 <Button onClick={() => navigate('/admin')} className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">

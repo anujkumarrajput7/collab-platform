@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { messagesApi, influencersApi } from '@/lib/api';
+import { assetUrl } from '@/lib/url';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -192,10 +193,10 @@ export default function Messages() {
                                 {msg.post ? (
                                   <div>
                                     <p className="text-xs text-gray-300 mb-2">Shared a post</p>
-                                    {msg.post.mediaUrl && (msg.post.mediaUrl.match(/\.mp4|\.webm/i) ? (
-                                      <video src={msg.post.mediaUrl} controls className="w-full rounded-lg" />
+{msg.post.mediaUrl && (msg.post.mediaUrl.match(/\.mp4|\.webm/i) ? (
+                                      <video src={assetUrl(msg.post.mediaUrl)} controls className="w-full rounded-lg" />
                                     ) : (
-                                      <img src={msg.post.mediaUrl} className="w-full rounded-lg" />
+                                      <img src={assetUrl(msg.post.mediaUrl)} className="w-full rounded-lg" />
                                     ))}
                                     {msg.post.text && <p className="mt-2 text-sm">{msg.post.text}</p>}
                                   </div>

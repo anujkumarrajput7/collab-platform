@@ -7,10 +7,6 @@ if (!document.documentElement.classList.contains('dark')) {
   document.documentElement.classList.add('dark');
 }
 
-// Auto-refresh on browser back/forward navigation
-window.addEventListener('popstate', () => {
-  // Give router a tick, then hard-reload to fetch fresh data
-  setTimeout(() => location.reload(), 0);
-});
+// Disable forced hard-reload on back; SPA routing keeps session intact.
 
 createRoot(document.getElementById("root")!).render(<App />);

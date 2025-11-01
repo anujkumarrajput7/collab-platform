@@ -16,6 +16,7 @@ interface AuthContextType {
   login: (token: string, userData: User) => void
   logout: () => void
   isAuthenticated: boolean
+  loading: boolean
 }
 
 const AuthContext = createContext<AuthContextType | null>(null)
@@ -23,6 +24,7 @@ const AuthContext = createContext<AuthContextType | null>(null)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     // Check for existing token on mount
@@ -32,6 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setUser(JSON.parse(userData))
       setIsAuthenticated(true)
     }
+    setLoading(false)
   }, [])
 
   const login = (token: string, userData: User) => {
@@ -49,7 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isAuthenticated }}>
+    <AuthContext.Provider value={{ user, login, logout, isAuthenticated, loading }}>
       {children}
     </AuthContext.Provider>
   )

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -10,7 +10,10 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function Feed() {
   const [posts, setPosts] = useState<any[]>([]);
+  const [loadingFeed, setLoadingFeed] = useState(true);
   const [liked, setLiked] = useState<Set<string>>(new Set());
+  const [error, setError] = useState<string>('');
+  const fetched = useRef(false);
   const [openComments, setOpenComments] = useState<{open:boolean; postId?:string; items:any[]}>({open:false, items:[]});
   const [text, setText] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
@@ -21,10 +24,19 @@ export default function Feed() {
   const { toast } = useToast();
 
   const load = async () => {
-    const data = await postsApi.feed();
-    setPosts(Array.isArray(data) ? data : []);
+    setLoadingFeed(true);
+    setError('');
+    try {
+      const data = await postsApi.feed();
+      if (Array.isArray(data)) setPosts(data);
+      else setPosts([]);
+    } catch (e: any) {
+      setError(e?.message || 'Failed to load feed');
+    } finally {
+      setLoadingFeed(false);
+    }
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => { if (fetched.current) return; fetched.current = true; load(); }, []);
 
   const submit = async () => {
     try {
@@ -38,7 +50,11 @@ export default function Feed() {
   const toggleLike = async (id: string) => {
     try {
       const res: any = await postsApi.like(id);
-      setLiked(prev => { const n = new Set(prev); res.liked ? n.add(id) : n.delete(id); return n; });
+setLiked(prev => {
+      const n = new Set(prev);
+      if (res.liked) n.add(id); else n.delete(id);
+      return n;
+    });
     } catch {}
   };
 
@@ -96,8 +112,19 @@ export default function Feed() {
           </CardContent>
         </Card>
 
-        {posts.map((p, idx) => (
-          <Card key={p._id} className="relative overflow-hidden bg-slate-900/40 backdrop-blur-lg border-purple-500/20 group">
+        {loadingFeed ? (
+          <div className="text-center text-gray-300 py-10">Loading feed…</div>
+        ) : error ? (
+          <div className="text-center text-red-400 py-10">
+            {error}
+            <div className="mt-3">
+              <button className="px-4 py-2 rounded-md bg-white/10 hover:bg-white/20 text-white" onClick={load}>Retry</button>
+            </div>
+          </div>
+        ) : posts.length === 0 ? (
+          <div className="text-center text-gray-400 py-10">No posts yet</div>
+        ) : posts.map((p, idx) => (
+          <Card key={p._id || idx} className="relative overflow-hidden bg-slate-900/40 backdrop-blur-lg border-purple-500/20 group">
             <CardHeader className="pb-2">
               <div className="flex items-center gap-3">
                 <div className="p-[2px] rounded-full bg-gradient-to-tr from-purple-500 via-pink-500 to-yellow-500">
