@@ -2,6 +2,7 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
+const path = require('path');
 require("dotenv").config();
 const connectDB = require("./config/db");
 const errorHandler = require("./middleware/errorMiddleware");
@@ -15,6 +16,8 @@ const paymentRoutes = require("./routes/payment.routes");
 const reviewRoutes = require("./routes/review.routes");
 const messageRoutes = require("./routes/message.routes");
 const leaderboardRoutes = require("./routes/leaderboard.routes");
+const postRoutes = require("./routes/post.routes");
+const uploadRoutes = require("./routes/upload.routes");
 
 const app = express();
 const server = http.createServer(app);
@@ -26,6 +29,9 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+// static uploads
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // connect DB
 connectDB();
@@ -40,6 +46,8 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/upload", uploadRoutes);
 
 // root
 app.get("/", (req, res) => res.send("🚀Anmol's Collab Platform API is running..."));

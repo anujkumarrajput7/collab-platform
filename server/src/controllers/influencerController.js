@@ -5,7 +5,18 @@ const User = require("../models/User");
  */
 exports.getAll = async (req, res) => {
   try {
-    const users = await User.find({ _id: { $ne: req.user._id } }).select('-password');
+    const contactsOnly = req.query.contacts === '1';
+    let users = await User.find({ _id: { $ne: req.user._id } }).select('-password');
+    if (contactsOnly && req.user.role === 'influencer') {
+      // Keep influencers + companies that have messaged first or have accepted application with this influencer
+      const companiesMessaged = await Message.find({ to: req.user._id }).distinct('from');
+      const acceptedApps = await require('../models/Application').find({ influencer: req.user._id, status: 'accepted' }).populate('campaign');
+      const allowedCompanyIds = new Set([
+        ...companiesMessaged.map(String),
+        ...acceptedApps.map(a => String(a.campaign?.createdBy || '')),
+      ]);
+      users = users.filter(u => u.role === 'influencer' || allowedCompanyIds.has(String(u._id)));
+    }
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -17,6 +28,21 @@ exports.getAll = async (req, res) => {
  */
 exports.me = async (req, res) => {
   res.json(req.user);
+};
+
+exports.updateMe = async (req, res) => {
+  try {
+    const { name, bio, avatarUrl } = req.body;
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (name !== undefined) user.name = name;
+    if (bio !== undefined) user.bio = bio;
+    if (avatarUrl !== undefined) user.avatarUrl = avatarUrl;
+    await user.save();
+    res.json({ _id: user._id, name: user.name, email: user.email, role: user.role, bio: user.bio, avatarUrl: user.avatarUrl });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 /**
@@ -65,6 +91,26 @@ exports.verifySocialProfile = async (req, res) => {
     user.socialProfiles[idx].verified = true;
     await user.save();
     res.json({ message: "Profile verified", profile: user.socialProfiles[idx] });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+/**
+ * Admin: list users with pending social verifications
+ */
+exports.listPendingVerifications = async (req, res) => {
+  try {
+    const users = await User.find({ 'socialProfiles.verified': false })
+      .select('name email socialProfiles');
+    // Only include unverified entries with their index
+    const pending = users.map(u => ({
+      _id: u._id,
+      name: u.name,
+      email: u.email,
+      profiles: (u.socialProfiles || []).map((p, idx) => ({ ...p.toObject(), index: idx })).filter(p => !p.verified)
+    })).filter(u => u.profiles.length > 0);
+    res.json(pending);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

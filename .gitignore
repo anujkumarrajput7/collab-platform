@@ -4,10 +4,15 @@ node_modules/
 
 # Environment variables
 .env
+.env.*
+server/.env
+client/.env
 .env.local
 .env.production
 
 # Build outputs
+client/dist/
+server/dist/
 dist/
 build/
 *.log
@@ -25,6 +30,10 @@ Thumbs.db
 # Misc
 *.bak
 *.tmp
+*.log
+
+# Local uploads (non-critical test media)
+server/src/uploads/
 
 # Deployment docs with sensitive info
 DEPLOYMENT.md

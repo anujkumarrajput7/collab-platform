@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Instagram, Youtube, Music, Twitter, Facebook, Plus, Trash2, Check, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { influencersApi } from '@/lib/api';
+import { assetUrl } from '@/lib/url';
 
 const SOCIAL_PLATFORMS = [
   { name: 'Instagram', icon: Instagram, color: 'text-pink-500', value: 'instagram' },
@@ -84,15 +85,15 @@ export default function Settings() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-slate-200">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-slate-900/80 backdrop-blur-md border-b border-purple-500/20 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               Settings
             </h1>
-            <Button variant="outline" onClick={() => navigate('/dashboard')}>
+            <Button variant="glass" className="text-slate-200 border border-purple-500/30" onClick={() => navigate('/dashboard')}>
               Back to Dashboard
             </Button>
           </div>
@@ -101,7 +102,7 @@ export default function Settings() {
 
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs defaultValue="profile" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-3 bg-slate-900/60 border border-purple-500/20">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="social">Social Media</TabsTrigger>
             <TabsTrigger value="account">Account</TabsTrigger>
@@ -109,31 +110,54 @@ export default function Settings() {
 
           {/* Profile Tab */}
           <TabsContent value="profile">
-            <Card className="border-2 border-blue-100 shadow-lg">
+            <Card className="bg-slate-900/40 backdrop-blur-lg border-purple-500/20">
               <CardHeader>
-                <CardTitle>Profile Information</CardTitle>
-                <CardDescription>Update your profile details</CardDescription>
+                <CardTitle className="text-slate-200">Profile Information</CardTitle>
+                <CardDescription className="text-gray-400">Update your profile details</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                {/* Avatar */}
+                <div className="flex items-center gap-4">
+                  <div className="p-[3px] rounded-full bg-gradient-to-tr from-purple-500 via-pink-500 to-yellow-500">
+                    <div className="rounded-full bg-slate-900 p-1">
+                      {(() => { const u = (user as any)?.avatarUrl || ''; const src = assetUrl(u) || 'https://placehold.co/80x80?text=Avatar'; return <img src={src} alt="avatar" className="h-16 w-16 rounded-full object-cover" /> })()}
+                    </div>
+                  </div>
+                  <div>
+                    <input id="avatarFile" type="file" accept="image/*" className="hidden" onChange={async (e:any)=>{
+                      const f = e.target.files?.[0];
+                      if (!f) return;
+                      const { uploadApi } = await import('@/lib/api');
+                      
+                      const { url } = await uploadApi.upload(f);
+                      const absoluteUrl = assetUrl(url);
+                      await influencersApi.updateMe({ avatarUrl: absoluteUrl });
+                      localStorage.setItem('user', JSON.stringify({ ...user, avatarUrl: absoluteUrl }));
+                      toast({ title: 'Profile photo updated' });
+                      window.location.reload();
+                    }} />
+                    <Button onClick={()=>document.getElementById('avatarFile')?.click()} className="bg-gradient-to-r from-blue-600 to-purple-600">Change Photo</Button>
+                  </div>
+                </div>
                 <div>
                   <Label htmlFor="name">Full Name</Label>
                   <Input
                     id="name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    className="mt-2"
+                    className="mt-2 bg-slate-800/50 border-purple-500/30 text-slate-200"
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" value={user.email} disabled className="mt-2 bg-gray-50" />
+                  <Input id="email" value={user.email} disabled className="mt-2 bg-slate-800/50 border-purple-500/30 text-slate-400" />
                   <p className="text-xs text-gray-500 mt-1">Email cannot be changed</p>
                 </div>
 
                 <div>
                   <Label htmlFor="role">Role</Label>
-                  <Input id="role" value={user.role} disabled className="mt-2 bg-gray-50 capitalize" />
+                  <Input id="role" value={user.role} disabled className="mt-2 bg-slate-800/50 border-purple-500/30 text-slate-400 capitalize" />
                 </div>
 
                 <div>
@@ -142,14 +166,18 @@ export default function Settings() {
                     id="bio"
                     value={bio}
                     onChange={(e) => setBio(e.target.value)}
-                    className="mt-2 w-full min-h-[100px] px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="mt-2 w-full min-h-[100px] px-3 py-2 bg-slate-800/50 border border-purple-500/30 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600 text-slate-200"
                     placeholder="Tell us about yourself..."
                   />
                 </div>
 
                 <Button
-                  onClick={handleUpdateProfile}
-                  className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                  onClick={async ()=>{
+                    await influencersApi.updateMe({ name, bio });
+                    localStorage.setItem('user', JSON.stringify({ ...user, name, bio }));
+                    toast({ title: 'Saved' });
+                  }}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
                 >
                   Save Changes
                 </Button>
@@ -159,12 +187,12 @@ export default function Settings() {
 
           {/* Social Media Tab */}
           <TabsContent value="social">
-            <Card className="border-2 border-purple-100 shadow-lg">
+            <Card className="bg-slate-900/40 backdrop-blur-lg border-purple-500/20">
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle>Social Media Accounts</CardTitle>
-                    <CardDescription>Connect your social media profiles (Min. 500 followers required)</CardDescription>
+                    <CardTitle className="text-slate-200">Social Media Accounts</CardTitle>
+                    <CardDescription className="text-gray-400">Connect your social media profiles (Min. 500 followers required)</CardDescription>
                   </div>
                   {!showAddSocial && (
                     <Button
@@ -180,8 +208,8 @@ export default function Settings() {
               <CardContent className="space-y-4">
                 {/* Add New Social */}
                 {showAddSocial && (
-                  <div className="border-2 border-purple-200 rounded-lg p-4 bg-purple-50 space-y-4">
-                    <h3 className="font-semibold text-lg">Add New Social Account</h3>
+                  <div className="border border-purple-500/30 rounded-lg p-4 bg-slate-900/60 space-y-4">
+                    <h3 className="font-semibold text-lg text-slate-200">Add New Social Account</h3>
                     
                     <div>
                       <Label>Platform</Label>
@@ -192,10 +220,10 @@ export default function Settings() {
                             <button
                               key={platform.value}
                               onClick={() => setNewSocial({ ...newSocial, platform: platform.value })}
-                              className={`p-4 rounded-lg border-2 transition-all ${
+                              className={`p-4 rounded-lg border transition-all ${
                                 newSocial.platform === platform.value
-                                  ? 'border-purple-600 bg-purple-100'
-                                  : 'border-gray-200 hover:border-gray-300'
+                                  ? 'border-purple-500/70 bg-purple-500/10'
+                                  : 'border-purple-500/20 hover:border-purple-500/40'
                               }`}
                             >
                               <Icon className={`h-6 w-6 mx-auto ${platform.color}`} />
@@ -213,7 +241,7 @@ export default function Settings() {
                           placeholder="@username"
                           value={newSocial.handle}
                           onChange={(e) => setNewSocial({ ...newSocial, handle: e.target.value })}
-                          className="mt-2"
+                          className="mt-2 bg-slate-800/50 border-purple-500/30 text-slate-200"
                         />
                       </div>
                       <div>
@@ -223,7 +251,7 @@ export default function Settings() {
                           placeholder="e.g., 1000"
                           value={newSocial.followersCount || ''}
                           onChange={(e) => setNewSocial({ ...newSocial, followersCount: parseInt(e.target.value) || 0 })}
-                          className="mt-2"
+                          className="mt-2 bg-slate-800/50 border-purple-500/30 text-slate-200"
                         />
                         {newSocial.followersCount > 0 && newSocial.followersCount < 500 && (
                           <p className="text-xs text-red-500 mt-1">Minimum 500 followers required</p>
@@ -233,12 +261,12 @@ export default function Settings() {
 
                     <div>
                       <Label>Proof URL (Screenshot/Analytics Link)</Label>
-                      <Input
-                        placeholder="https://..."
-                        value={newSocial.proofUrl}
-                        onChange={(e) => setNewSocial({ ...newSocial, proofUrl: e.target.value })}
-                        className="mt-2"
-                      />
+                        <Input
+                          placeholder="https://..."
+                          value={newSocial.proofUrl}
+                          onChange={(e) => setNewSocial({ ...newSocial, proofUrl: e.target.value })}
+                          className="mt-2 bg-slate-800/50 border-purple-500/30 text-slate-200"
+                        />
                     </div>
 
                     <div className="flex gap-2">
@@ -256,7 +284,7 @@ export default function Settings() {
 
                 {/* Existing Social Accounts */}
                 {socialProfiles.length === 0 ? (
-                  <div className="text-center py-12 text-gray-500">
+                  <div className="text-center py-12 text-gray-400">
                     <p>No social accounts connected yet</p>
                     <p className="text-sm mt-2">Add your social accounts to increase visibility</p>
                   </div>
@@ -266,29 +294,29 @@ export default function Settings() {
                       const platform = SOCIAL_PLATFORMS.find(p => p.value === profile.platform);
                       const Icon = platform?.icon || Instagram;
                       return (
-                        <div key={idx} className="flex items-center justify-between p-4 border-2 rounded-lg hover:border-purple-300 transition-all">
+                        <div key={idx} className="flex items-center justify-between p-4 border rounded-lg hover:border-purple-500/50 transition-all border-purple-500/20 bg-slate-900/60">
                           <div className="flex items-center gap-4">
                             <Icon className={`h-8 w-8 ${platform?.color}`} />
                             <div>
-                              <p className="font-semibold capitalize">{profile.platform}</p>
-                              <p className="text-sm text-gray-600">@{profile.handle}</p>
+                              <p className="font-semibold capitalize text-slate-200">{profile.platform}</p>
+                              <p className="text-sm text-gray-400">@{profile.handle}</p>
                             </div>
                           </div>
                           <div className="flex items-center gap-4">
                             <div className="text-right">
-                              <p className="font-bold text-lg">{profile.followersCount?.toLocaleString()}</p>
-                              <p className="text-xs text-gray-500">followers</p>
+                              <p className="font-bold text-lg text-slate-200">{profile.followersCount?.toLocaleString()}</p>
+                              <p className="text-xs text-gray-400">followers</p>
                             </div>
                             {profile.verified ? (
-                              <div className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-semibold">
+                              <div className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-semibold">
                                 Verified
                               </div>
                             ) : (
-                              <div className="px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-xs font-semibold">
+                              <div className="px-3 py-1 bg-yellow-500/20 text-yellow-300 rounded-full text-xs font-semibold">
                                 Pending
                               </div>
                             )}
-                            <Button variant="ghost" size="icon" className="text-red-500 hover:text-red-700">
+                            <Button variant="ghost" size="icon" className="text-red-400 hover:text-red-300">
                               <Trash2 className="h-4 w-4" />
                             </Button>
                           </div>
@@ -303,10 +331,10 @@ export default function Settings() {
 
           {/* Account Tab */}
           <TabsContent value="account">
-            <Card className="border-2 border-red-100 shadow-lg">
+            <Card className="bg-slate-900/40 backdrop-blur-lg border-purple-500/20">
               <CardHeader>
-                <CardTitle>Account Settings</CardTitle>
-                <CardDescription>Manage your account preferences</CardDescription>
+                <CardTitle className="text-slate-200">Account Settings</CardTitle>
+                <CardDescription className="text-gray-400">Manage your account preferences</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-4">

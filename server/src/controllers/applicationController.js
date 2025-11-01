@@ -15,6 +15,13 @@ exports.apply = async (req, res) => {
     const exists = await Application.findOne({ campaign: campaignId, influencer: req.user._id });
     if (exists) return res.status(400).json({ message: "Already applied" });
 
+    // Enforce minimum followers (verified profiles only)
+    const me = await User.findById(req.user._id);
+    const eligible = (me?.socialProfiles || []).some(p => (p.verified || false) && (p.followersCount || 0) >= (campaign.minFollowers || 0));
+    if (!eligible) {
+      return res.status(403).json({ message: `You need at least ${campaign.minFollowers} verified followers to apply` });
+    }
+
     // Calculate response time
     const responseTime = Date.now() - campaign.createdAt.getTime();
     
@@ -168,7 +175,8 @@ exports.verifyProof = async (req, res) => {
       
       // Update campaign
       await Campaign.findByIdAndUpdate(application.campaign._id, {
-        status: 'completed'
+        status: 'completed',
+        winnerId: application.influencer._id
       });
       
       // Update influencer stats

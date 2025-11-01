@@ -14,6 +14,11 @@ import Dashboard from "./pages/Dashboard";
 import Messages from "./pages/Messages";
 import Search from "./pages/Search";
 import Settings from "./pages/Settings";
+import Feed from "./pages/Feed";
+import Reels from "./pages/Reels";
+import AdminReview from "./pages/AdminReview";
+import Startups from "./pages/Startups";
+import Applications from "./pages/Applications";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,6 +39,11 @@ const App = () => (
             <Route path="/messages" element={<Messages />} />
             <Route path="/search" element={<Search />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/feed" element={<Feed />} />
+            <Route path="/reels" element={<Reels />} />
+            <Route path="/admin" element={<AdminReview />} />
+            <Route path="/startups" element={<Startups />} />
+            <Route path="/applications" element={<Applications />} />
             {/* Catch-all route for 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>

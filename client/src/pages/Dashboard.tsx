@@ -3,14 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
-import { campaignsApi } from '@/lib/api';
+import { campaignsApi, paymentsApi } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
-import { MessageSquare, TrendingUp, Users, DollarSign, Briefcase, Award, Bell, Settings, Search } from 'lucide-react';
+import { MessageSquare, TrendingUp, Users, IndianRupee, Briefcase, Award, Bell, Settings, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import Logo from '@/components/Logo';
 import LiveStormDashboard from '@/components/LiveStormDashboard';
 import CreateCampaignModal from '@/components/CreateCampaignModal';
 import ApplyToCampaignModal from '@/components/ApplyToCampaignModal';
+import CreateStartupModal from '@/components/CreateStartupModal';
+import RateInfluencerModal from '@/components/RateInfluencerModal';
+import { formatINR, RUPEE } from '@/lib/currency';
+import { assetUrl } from '@/lib/url';
 
 export default function Dashboard() {
   const { user, logout, isAuthenticated } = useAuth();
@@ -19,13 +23,9 @@ export default function Dashboard() {
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [myStartupId, setMyStartupId] = useState<string | null>((user as any)?.startupId || null);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      navigate('/login');
-      return;
-    }
-
     // Fetch campaigns
     const fetchCampaigns = async () => {
       try {
@@ -47,20 +47,21 @@ export default function Dashboard() {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate('/');
   };
 
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-purple-950 to-slate-900 relative overflow-hidden">
+      <div className="aurora"></div>
       {/* Animated background */}
       <div className="absolute inset-0 opacity-30">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full filter blur-3xl animate-pulse"></div>
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full filter blur-3xl animate-pulse" style={{animationDelay: '1s'}}></div>
       </div>
-      {/* Modern Header */}
-      <header className="bg-slate-900/80 backdrop-blur-md border-b border-purple-500/20 sticky top-0 z-50 relative">
+      {/* Hero Header */}
+      <header className="bg-slate-900/70 backdrop-blur-xl border-b border-purple-500/20 sticky top-0 z-50 relative shadow-[0_10px_40px_-10px_rgba(147,51,234,0.35)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-4">
@@ -88,6 +89,17 @@ export default function Dashboard() {
               >
                 <Search className="h-5 w-5" />
               </Button>
+              <Button onClick={() => navigate('/feed')} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
+                Feed
+              </Button>
+              <Button onClick={() => navigate('/reels')} className="bg-gradient-to-r from-pink-600 to-orange-600 hover:from-pink-700 hover:to-orange-700">
+                Reels
+              </Button>
+              {user.role === 'admin' && (
+                <Button onClick={() => navigate('/admin')} className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
+                  Admin
+                </Button>
+              )}
               <Button 
                 variant="ghost" 
                 size="icon" 
@@ -111,6 +123,7 @@ export default function Dashboard() {
                 <Settings className="h-5 w-5" />
               </Button>
               <div className="flex items-center gap-3 ml-4 pl-4 border-l border-purple-500/20">
+                {(() => { const u = (user as any)?.avatarUrl || ''; const src = assetUrl(u) || 'https://placehold.co/40x40?text=U'; return <img src={src} className="h-10 w-10 rounded-full object-cover ring-2 ring-offset-2 ring-offset-slate-900 ring-purple-500" /> })()}
                 <div className="text-right">
                   <p className="text-sm font-semibold text-white">{user.name}</p>
                   <span className="text-xs bg-gradient-to-r from-blue-600 to-purple-600 text-white px-2 py-0.5 rounded-full capitalize">
@@ -119,8 +132,8 @@ export default function Dashboard() {
                 </div>
                 <Button 
                   onClick={handleLogout} 
-                  className="ml-2 bg-gradient-to-r from-red-600/20 to-pink-600/20 border border-red-500/30 text-white hover:from-red-600/30 hover:to-pink-600/30 hover:border-red-500/50"
-                  variant="outline"
+                  className="ml-2 bg-gradient-to-r from-red-600/20 to-pink-600/20 border border-red-500/30 text-slate-200 hover:from-red-600/30 hover:to-pink-600/30 hover:border-red-500/50"
+                  variant="glass"
                 >
                   Logout
                 </Button>
@@ -132,8 +145,33 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
+        {/* Stories ring */}
+        <div className="flex gap-4 overflow-x-auto pb-4 mb-6">
+          {[...Array(12)].map((_,i)=> (
+            <div key={i} className="flex flex-col items-center gap-2">
+              <div className="p-[3px] rounded-full bg-gradient-to-tr from-purple-500 via-pink-500 to-yellow-500">
+                <div className="rounded-full bg-slate-900 p-[2px]">
+                  <img src={`https://i.pravatar.cc/100?img=${i+5}`} className="h-14 w-14 rounded-full object-cover" />
+                </div>
+              </div>
+              <span className="text-xs text-gray-400">Story {i+1}</span>
+            </div>
+          ))}
+        </div>
+        {/* Luxury Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <Card className="relative overflow-hidden bg-gradient-to-br from-purple-700 to-indigo-700 text-white border-0 shadow-2xl">
+            <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,.4),transparent_40%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,.3),transparent_40%)]"></div>
+            <CardContent className="p-6 relative">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-purple-100 text-sm font-medium">Brand Score</p>
+                  <h3 className="text-3xl font-bold mt-2">{Math.min(100, (campaigns.length*7)+66)}%</h3>
+                </div>
+                <div className="h-12 w-12 rounded-full bg-white/20 grid place-items-center">🌟</div>
+              </div>
+            </CardContent>
+          </Card>
           <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white border-0 shadow-lg hover:shadow-xl transition-all">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -175,16 +213,16 @@ export default function Dashboard() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-orange-100 text-sm font-medium">Total Budget</p>
-                  <h3 className="text-3xl font-bold mt-2">${campaigns.reduce((sum, c) => sum + (c.budget || 0), 0).toLocaleString()}</h3>
+                  <h3 className="text-3xl font-bold mt-2">{formatINR(campaigns.reduce((sum, c) => sum + (c.budget || 0), 0))}</h3>
                 </div>
-                <DollarSign className="h-12 w-12 text-orange-200 opacity-80" />
+                <IndianRupee className="h-12 w-12 text-orange-200 opacity-80" />
               </div>
             </CardContent>
           </Card>
         </div>
 
         {/* Live Storm Dashboard */}
-        <Card className="bg-slate-900/40 backdrop-blur-lg border-purple-500/20 p-6 mb-8 relative">
+        <Card className="bg-slate-900/50 backdrop-blur-2xl border-purple-500/30 p-6 mb-8 relative shadow-[0_10px_40px_-10px_rgba(59,130,246,0.35)]">
           <LiveStormDashboard />
         </Card>
 
@@ -205,28 +243,41 @@ export default function Dashboard() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <CreateCampaignModal 
-                    startupId={user.startupId || 'temp-startup-id'}
-                    onSuccess={() => window.location.reload()}
-                  />
+                  {myStartupId ? (
+                    <CreateCampaignModal 
+                      startupId={myStartupId}
+                      onSuccess={() => window.location.reload()}
+                    />
+                  ) : (
+                    <CreateStartupModal 
+                      onCreated={(s) => {
+                        setMyStartupId(s._id);
+                        // persist in localStorage user for later sessions
+                        const u = JSON.parse(localStorage.getItem('user') || '{}');
+                        localStorage.setItem('user', JSON.stringify({ ...u, startupId: s._id }));
+                        toast({ title: 'Startup created', description: 'You can now launch a campaign.' });
+                      }}
+                    />
+                  )}
                 </CardContent>
               </Card>
-              <Card className="border-2 border-green-500/30 hover:border-green-500/50 transition-all hover:shadow-lg bg-slate-900/40 backdrop-blur-lg">
-                <CardHeader className="pb-4">
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-green-500/20 rounded-lg">
-                      <Users className="h-6 w-6 text-green-400" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg text-white">Manage Startups</CardTitle>
-                      <CardDescription className="text-gray-400">View and edit your startup profiles</CardDescription>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <Button className="w-full border-purple-500/30 text-white hover:bg-purple-500/20" variant="outline">View Startups</Button>
-                </CardContent>
-              </Card>
+          <Card className="border-2 border-green-500/30 hover:border-green-500/50 transition-all hover:shadow-lg bg-slate-900/40 backdrop-blur-lg">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-green-500/20 rounded-lg">
+                  <Users className="h-6 w-6 text-green-400" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg text-white">Manage Startups</CardTitle>
+                  <CardDescription className="text-gray-400">View and edit your startup profiles</CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="grid grid-cols-2 gap-2">
+              <Button className="w-full border-purple-500/30 text-white hover:bg-purple-500/20" variant="outline" onClick={() => navigate('/startups')}>View Startups</Button>
+              <Button className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700" onClick={() => navigate('/applications')}>View Applications</Button>
+            </CardContent>
+          </Card>
             </>
           )}
           {user.role === 'influencer' && (
@@ -299,7 +350,7 @@ export default function Dashboard() {
         </div>
 
         {/* Campaigns List */}
-        <Card className="border-0 shadow-lg bg-slate-900/40 backdrop-blur-lg border border-purple-500/20 relative">
+        <Card className="border-0 shadow-2xl bg-slate-900/50 backdrop-blur-xl border border-purple-500/30 relative">
           <CardHeader className="border-b border-purple-500/20 bg-slate-900/60">
             <div className="flex items-center justify-between">
               <div>
@@ -373,10 +424,10 @@ export default function Dashboard() {
                       <div className="grid grid-cols-2 gap-3 mb-4">
                         <div className="bg-green-50 rounded-lg p-3">
                           <div className="flex items-center gap-2">
-                            <DollarSign className="h-4 w-4 text-green-600" />
+                            <IndianRupee className="h-4 w-4 text-green-600" />
                             <span className="text-xs text-green-700 font-medium">Budget</span>
                           </div>
-                          <p className="text-lg font-bold text-green-700 mt-1">${campaign.budget?.toLocaleString() || 0}</p>
+                          <p className="text-lg font-bold text-green-700 mt-1">{formatINR(campaign.budget)}</p>
                         </div>
                         <div className="bg-blue-50 rounded-lg p-3">
                           <div className="flex items-center gap-2">
@@ -391,6 +442,43 @@ export default function Dashboard() {
                           campaign={campaign}
                           onSuccess={() => window.location.reload()}
                         />
+                      )}
+                      {user.role === 'company' && (
+                        <div className="mt-2 flex items-center justify-between">
+                          {campaign.status === 'completed' && campaign.winnerId && (
+                            // @ts-ignore
+                            <RateInfluencerModal campaignId={campaign._id} influencerId={campaign.winnerId} />
+                          )}
+                          <div className="ml-auto flex gap-2">
+                            <Button 
+                              className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700"
+                              onClick={async () => {
+                                try {
+                                  await paymentsApi.create({ campaignId: campaign._id, amount: campaign.budget || 0 });
+                                  toast({ title: `Payment Initiated`, description: `Pay ${formatINR(campaign.budget)} for this campaign (simulated).` });
+                                } catch (e: any) {
+                                  toast({ title: 'Payment failed', description: e.message, variant: 'destructive' });
+                                }
+                              }}
+                            >
+                              Pay {formatINR(campaign.budget)}
+                            </Button>
+                            <Button 
+                              variant="destructive"
+                              onClick={async () => {
+                                try {
+                                  await campaignsApi.remove(campaign._id);
+                                  toast({ title: 'Campaign deleted' });
+                                  window.location.reload();
+                                } catch (e: any) {
+                                  toast({ title: 'Delete failed', description: e.message, variant: 'destructive' });
+                                }
+                              }}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+                        </div>
                       )}
                     </CardContent>
                   </Card>

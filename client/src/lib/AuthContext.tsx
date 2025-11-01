@@ -6,6 +6,9 @@ interface User {
   name: string
   email: string
   role: 'influencer' | 'company' | 'admin'
+  bio?: string
+  avatarUrl?: string
+  startupId?: string
 }
 
 interface AuthContextType {

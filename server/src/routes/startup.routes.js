@@ -7,6 +7,9 @@ const role = require("../middleware/roleMiddleware");
 // Public: list startups
 router.get("/", startupController.getAll);
 
+// My startups (company)
+router.get("/mine", auth, role("company", "admin"), startupController.getMine);
+
 // Protected: create startup (company)
 router.post("/", auth, role("company", "admin"), startupController.create);
 

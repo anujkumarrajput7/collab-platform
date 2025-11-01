@@ -2,17 +2,49 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/AuthContext';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { leaderboardApi } from '@/lib/api';
+import { formatINR } from '@/lib/currency';
 
 export default function Index() {
   const { isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [stats, setStats] = useState({ campaigns: 500, budget: 2_000_000, success: 95 });
+  const [activity, setActivity] = useState<any[]>([]);
 
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/dashboard');
     }
   }, [isAuthenticated, navigate]);
+
+  // load recent activity (marquee)
+  useEffect(() => {
+    (async () => {
+      try {
+        const items = await leaderboardApi.getLiveActivity?.(20);
+        if (Array.isArray(items)) setActivity(items);
+      } catch {}
+    })();
+  }, []);
+
+  // gentle animated counters on mount
+  useEffect(() => {
+    let t = 0; const dur = 1500; const start = performance.now();
+    const from = { c: 420, b: 1_000_000, s: 88 };
+    const to = { c: 780, b: 3_700_000, s: 96 };
+    const af = () => {
+      t = (performance.now() - start) / dur; const e = Math.min(1, t);
+      const ease = (x:number)=>1-Math.pow(1-x,3);
+      setStats({
+        campaigns: Math.round(from.c + (to.c-from.c)*ease(e)),
+        budget: Math.round(from.b + (to.b-from.b)*ease(e)),
+        success: Math.round(from.s + (to.s-from.s)*ease(e)),
+      });
+      if (e < 1) requestAnimationFrame(af);
+    };
+    requestAnimationFrame(af);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
@@ -26,15 +58,17 @@ export default function Index() {
       {/* Content */}
       <div className="relative z-10">
         {/* Navigation */}
-        <nav className="container mx-auto px-4 py-6">
+        <nav className="container mx-auto px-4 py-4 sticky top-0 z-50 backdrop-blur-xl bg-slate-900/40 border-b border-white/10">
           <div className="flex justify-between items-center">
-            <img src="/logo.png" alt="CREATERRA" className="h-12 w-auto object-contain" />
-            <div className="flex gap-4">
+            <img src="/logo.png" alt="CREATERRA" className="h-10 w-auto object-contain drop-shadow-[0_4px_20px_rgba(99,102,241,0.5)]" />
+            <div className="flex gap-2">
+              <Link to="/reels"><Button variant="ghost" className="text-white hover:bg-white/10">Reels</Button></Link>
+              <Link to="/feed"><Button variant="ghost" className="text-white hover:bg-white/10">Feed</Button></Link>
               <Link to="/login">
                 <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">Login</Button>
               </Link>
               <Link to="/signup">
-                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">Sign Up</Button>
+                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-[0_10px_30px_rgba(99,102,241,.45)]">Sign Up</Button>
               </Link>
             </div>
           </div>
@@ -73,18 +107,29 @@ export default function Index() {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mt-20">
               <div className="text-center">
-                <p className="text-4xl font-bold text-white mb-2">500+</p>
+                <p className="text-4xl font-bold text-white mb-2">{stats.campaigns.toLocaleString()}+</p>
                 <p className="text-gray-400">Active Campaigns</p>
               </div>
               <div className="text-center">
-                <p className="text-4xl font-bold text-white mb-2">$2M+</p>
+                <p className="text-4xl font-bold text-white mb-2">{formatINR(stats.budget)}</p>
                 <p className="text-gray-400">Total Budget</p>
               </div>
               <div className="text-center">
-                <p className="text-4xl font-bold text-white mb-2">95%</p>
+                <p className="text-4xl font-bold text-white mb-2">{stats.success}%</p>
                 <p className="text-gray-400">Success Rate</p>
               </div>
             </div>
+
+            {/* Live activity marquee */}
+            {activity.length > 0 && (
+              <div className="mt-10 overflow-hidden">
+                <div className="animate-[marquee_25s_linear_infinite] whitespace-nowrap text-gray-300/90">
+                  {activity.map((a:any, i:number)=> (
+                    <span key={i} className="mx-6">⚡ {a.influencer?.name || 'An influencer'} {a.status.replace('_',' ')} “{a.campaign?.title}”</span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -128,8 +173,19 @@ export default function Index() {
           </div>
         </div>
         
+        {/* CTA stripe */}
+        <div className="container mx-auto px-4">
+          <div className="relative overflow-hidden rounded-2xl p-8 bg-gradient-to-r from-indigo-600/40 to-purple-600/40 border border-white/10 text-center">
+            <h3 className="text-2xl md:text-3xl font-bold text-white">Ready to launch your next creator campaign?</h3>
+            <div className="mt-4 flex justify-center gap-4">
+              <Link to="/signup"><Button className="bg-white text-slate-900 hover:bg-slate-100">Get Started</Button></Link>
+              <Link to="/login"><Button variant="outline" className="border-white/20 text-white hover:bg-white/10">Sign In</Button></Link>
+            </div>
+          </div>
+        </div>
+
         {/* Footer */}
-        <footer className="container mx-auto px-4 py-12 border-t border-white/10">
+        <footer className="container mx-auto px-4 py-12 border-t border-white/10 mt-10">
           <div className="text-center text-gray-400">
             <p className="mb-2">© 2025 CREATERRA. All rights reserved.</p>
             <p className="text-sm">Built with ❤️ for creators and brands worldwide</p>

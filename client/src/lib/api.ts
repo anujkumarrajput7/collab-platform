@@ -1,4 +1,4 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5001/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 interface ApiError {
   message: string;
@@ -72,6 +72,9 @@ export const startupsApi = {
       body: JSON.stringify(data),
     });
   },
+  mine: async () => {
+    return apiCall('/startups/mine', { method: 'GET' });
+  },
 };
 
 // Campaigns API
@@ -81,6 +84,10 @@ export const campaignsApi = {
       ? '?' + new URLSearchParams(params).toString()
       : '';
     return apiCall(`/campaigns${queryString}`, { method: 'GET' });
+  },
+
+  remove: async (id: string) => {
+    return apiCall(`/campaigns/${id}`, { method: 'DELETE' });
   },
 
   getOne: async (id: string) => {
@@ -117,6 +124,31 @@ export const applicationsApi = {
       body: JSON.stringify(data),
     });
   },
+  list: async () => {
+    return apiCall('/applications', { method: 'GET' });
+  },
+  decide: async (id: string, action: 'accept' | 'reject') => {
+    return apiCall(`/applications/${id}/decide`, { method: 'POST', body: JSON.stringify({ action }) });
+  },
+};
+
+// Posts API
+export const postsApi = {
+  feed: async () => apiCall('/posts', { method: 'GET' }),
+  mine: async () => apiCall('/posts/me', { method: 'GET' }),
+  getOne: async (id: string) => apiCall(`/posts/${id}`, { method: 'GET' }),
+  create: async (data: { text?: string; mediaUrl?: string; type?: 'post' | 'reel'; visibility?: 'public' | 'followers'; audioUrl?: string; songTitle?: string; songArtist?: string }) =>
+    apiCall('/posts', { method: 'POST', body: JSON.stringify(data) }),
+  like: async (id: string) => apiCall(`/posts/${id}/like`, { method: 'POST' }),
+  getComments: async (id: string) => apiCall(`/posts/${id}/comments`, { method: 'GET' }),
+  addComment: async (id: string, text: string) => apiCall(`/posts/${id}/comments`, { method: 'POST', body: JSON.stringify({ text }) }),
+};
+
+// Admin API
+export const adminApi = {
+  listPendingVerifications: async () => apiCall('/influencers/pending-verifications', { method: 'GET' }),
+  verifySocialProfile: async (userId: string, index: number) =>
+    apiCall(`/influencers/social/${userId}/${index}/verify`, { method: 'POST' }),
 };
 
 // Payments API
@@ -149,6 +181,27 @@ export const messagesApi = {
       method: 'GET',
     });
   },
+
+  contacts: async () => {
+    return apiCall('/influencers?contacts=1', { method: 'GET' });
+  },
+};
+
+// Upload API
+export const uploadApi = {
+  upload: async (file: File) => {
+    const token = localStorage.getItem('token');
+    const form = new FormData();
+    form.append('media', file);
+    const resp = await fetch(`${API_BASE_URL}/upload`, {
+      method: 'POST',
+      body: form,
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error((data as any).message || 'Upload failed');
+    return data as { url: string };
+  },
 };
 
 // Influencers API
@@ -164,6 +217,13 @@ export const influencersApi = {
     proofUrl?: string;
   }) => {
     return apiCall('/influencers/social', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateMe: async (data: { name?: string; bio?: string; avatarUrl?: string }) => {
+    return apiCall('/influencers/me', {
       method: 'POST',
       body: JSON.stringify(data),
     });
@@ -195,13 +255,20 @@ export const leaderboardApi = {
       : '';
     return apiCall(`/leaderboard${queryString}`, { method: 'GET' });
   },
-  
   getMyRank: async () => {
     return apiCall('/leaderboard/my-rank', { method: 'GET' });
   },
-  
   getLiveActivity: async (limit?: number) => {
     const queryString = limit ? `?limit=${limit}` : '';
     return apiCall(`/leaderboard/activity${queryString}`, { method: 'GET' });
   },
 };
+
+// Reviews API
+export const reviewsApi = {
+  create: async (data: { campaign?: string; reviewee: string; rating: number; comment?: string }) => {
+    return apiCall('/reviews', { method: 'POST', body: JSON.stringify(data) });
+  },
+};
+
+export { apiCall, API_BASE_URL };

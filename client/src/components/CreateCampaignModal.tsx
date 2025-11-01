@@ -9,12 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Slider } from './ui/slider';
 import { Badge } from './ui/badge';
 import { campaignsApi } from '@/lib/api';
+import { formatINR, RUPEE } from '@/lib/currency';
 import { useToast } from '@/hooks/use-toast';
-import { Zap, DollarSign, Clock, TrendingUp } from 'lucide-react';
+import { Zap, IndianRupee, Clock, TrendingUp } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface CreateCampaignModalProps {
-  startupId: string;
+  startupId?: string;
   onSuccess?: () => void;
 }
 
@@ -54,6 +55,14 @@ const CreateCampaignModal = ({ startupId, onSuccess }: CreateCampaignModalProps)
       toast({
         title: 'Missing Fields',
         description: 'Please fill in title and select at least one platform',
+        variant: 'destructive'
+      });
+      return;
+    }
+    if (!startupId) {
+      toast({
+        title: 'No startup linked',
+        description: 'Create/select a startup before creating a campaign.',
         variant: 'destructive'
       });
       return;
@@ -147,9 +156,9 @@ const CreateCampaignModal = ({ startupId, onSuccess }: CreateCampaignModalProps)
 
           {/* Budget */}
           <div>
-            <Label htmlFor="budget">Budget ($)</Label>
+            <Label htmlFor="budget">Budget ({RUPEE})</Label>
             <div className="relative">
-              <DollarSign className="absolute left-3 top-3 h-4 w-4 text-green-400" />
+              <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-green-400" />
               <Input
                 id="budget"
                 type="number"

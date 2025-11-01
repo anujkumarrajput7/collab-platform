@@ -9,6 +9,8 @@ router.get("/", auth, influencerController.getAll);
 
 // get own profile
 router.get("/me", auth, influencerController.me);
+// update own profile (name, bio, avatarUrl)
+router.post("/me", auth, influencerController.updateMe);
 
 // add social profile
 router.post("/social", auth, influencerController.addSocialProfile);
@@ -18,5 +20,8 @@ router.post("/social/:index/request", auth, influencerController.requestVerifica
 
 // admin verifies profile
 router.post("/social/:userId/:index/verify", auth, role("admin"), influencerController.verifySocialProfile);
+
+// admin pending verifications
+router.get("/pending-verifications", auth, role("admin"), influencerController.listPendingVerifications);
 
 module.exports = router;

@@ -7,14 +7,29 @@ const generateToken = (id) => {
 
 exports.signup = async (req, res) => {
   try {
-    const { name, email, password, role, bio } = req.body;
+    const { name, email, password, role, bio, socialProfiles } = req.body;
     if (!name || !email || !password) {
       return res.status(400).json({ message: "Please provide name, email and password" });
     }
     const exists = await User.findOne({ email });
     if (exists) return res.status(400).json({ message: "User already exists" });
 
-    const user = await User.create({ name, email, password, role, bio });
+    // Basic influencer eligibility check
+    let extras = {};
+    if (role === 'influencer') {
+      const profiles = Array.isArray(socialProfiles) ? socialProfiles : [];
+      if (profiles.length === 0) {
+        return res.status(400).json({ message: "At least one social profile is required" });
+      }
+      const ok = profiles.every(p => (p.followersCount || 0) >= 10 && (p.proofUrl || p.profileUrl));
+      if (!ok) {
+        return res.status(400).json({ message: "Each social profile must have >= 10 followers and a proof/profile URL" });
+      }
+      // Store unverified; will be reviewed later
+      extras.socialProfiles = profiles.map(p => ({ ...p, verified: false }));
+    }
+
+    const user = await User.create({ name, email, password, role, bio, ...extras });
     res.status(201).json({
       _id: user._id,
       name: user.name,

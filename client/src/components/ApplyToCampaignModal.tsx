@@ -5,8 +5,9 @@ import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { applicationsApi } from '@/lib/api';
+import { RUPEE, formatINR } from '@/lib/currency';
 import { useToast } from '@/hooks/use-toast';
-import { Zap, DollarSign, Clock } from 'lucide-react';
+import { Zap, IndianRupee, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface ApplyToCampaignModalProps {
@@ -67,9 +68,9 @@ const ApplyToCampaignModal = ({ campaign, onSuccess }: ApplyToCampaignModalProps
           <div className="p-4 bg-slate-800/50 border border-purple-500/30 rounded-lg space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-gray-400 text-sm">Budget</span>
-              <span className="text-green-400 font-bold flex items-center">
-                <DollarSign className="h-4 w-4" />
-                {campaign.budget}
+              <span className="text-green-400 font-bold flex items-center gap-1">
+                <IndianRupee className="h-4 w-4" />
+                {formatINR(campaign.budget)}
               </span>
             </div>
             <div className="flex items-center justify-between">
@@ -121,9 +122,9 @@ const ApplyToCampaignModal = ({ campaign, onSuccess }: ApplyToCampaignModalProps
 
           {/* Proposed Price */}
           <div>
-            <Label htmlFor="proposedPrice">Your Bid ($)</Label>
+            <Label htmlFor="proposedPrice">Your Bid ({RUPEE})</Label>
             <div className="relative mt-2">
-              <DollarSign className="absolute left-3 top-3 h-4 w-4 text-green-400" />
+              <IndianRupee className="absolute left-3 top-3 h-4 w-4 text-green-400" />
               <Input
                 id="proposedPrice"
                 type="number"
@@ -134,7 +135,7 @@ const ApplyToCampaignModal = ({ campaign, onSuccess }: ApplyToCampaignModalProps
               />
             </div>
             <p className="text-xs text-gray-500 mt-1">
-              Suggested: ${campaign.budget}
+              Suggested: {formatINR(campaign.budget)}
             </p>
           </div>
 

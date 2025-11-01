@@ -13,4 +13,7 @@ router.post("/", auth, role("company", "admin"), campaignController.create);
 // get single
 router.get("/:id", campaignController.getOne);
 
+// delete (company/admin)
+router.delete("/:id", auth, role("company", "admin"), campaignController.remove);
+
 module.exports = router;

@@ -1,5 +1,6 @@
 const Campaign = require("../models/Campaign");
 const Startup = require("../models/Startup");
+const mongoose = require("mongoose");
 const { emitCampaignCreated } = require('../utils/socket');
 
 exports.create = async (req, res) => {
@@ -10,6 +11,10 @@ exports.create = async (req, res) => {
     } = req.body;
     
     if (!title || !startupId) return res.status(400).json({ message: "title and startupId required" });
+
+    if (!mongoose.Types.ObjectId.isValid(startupId)) {
+      return res.status(400).json({ message: "Invalid startupId" });
+    }
 
     // basic check: startup belongs to user or admin
     const startup = await Startup.findById(startupId);
@@ -63,6 +68,21 @@ exports.getOne = async (req, res) => {
     const c = await Campaign.findById(req.params.id).populate("startup createdBy");
     if (!c) return res.status(404).json({ message: "Campaign not found" });
     res.json(c);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+exports.remove = async (req, res) => {
+  try {
+    const id = req.params.id;
+    const campaign = await Campaign.findById(id);
+    if (!campaign) return res.status(404).json({ message: 'Campaign not found' });
+    if (!campaign.createdBy.equals(req.user._id) && req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+    await Campaign.findByIdAndDelete(id);
+    res.json({ message: 'Deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

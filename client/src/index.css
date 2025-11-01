@@ -3,6 +3,35 @@
 @tailwind utilities;
 
 @layer utilities {
+  .like-burst { animation: likePop .6s ease forwards; }
+  @keyframes likePop { 0% { transform: scale(.3); opacity: 0; } 50% { transform: scale(1.2); opacity: .9;} 100% { transform: scale(1); opacity: 0; } }
+  /* Aurora background blobs */
+  .aurora {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+  .aurora::before,
+  .aurora::after {
+    content: "";
+    position: absolute;
+    width: 60vw;
+    height: 60vw;
+    filter: blur(80px);
+    opacity: 0.35;
+    border-radius: 50%;
+    animation: float 14s ease-in-out infinite;
+    background: radial-gradient(circle at 30% 30%, hsl(271 91% 70%/0.9), transparent 60%),
+                radial-gradient(circle at 70% 70%, hsl(262 83% 58%/0.9), transparent 60%);
+  }
+  .aurora::after {
+    left: 40%; top: 10%;
+    animation-delay: -6s;
+  }
+  .aurora::before {
+    left: -10%; top: 40%;
+  }
+  @keyframes float { 0%,100% { transform: translateY(-10px);} 50% { transform: translateY(10px);} }
   .animate-in {
     animation: fadeInUp 0.5s ease-out;
   }

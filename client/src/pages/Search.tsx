@@ -83,15 +83,15 @@ export default function Search() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-slate-200">
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-40">
+      <header className="bg-slate-900/80 backdrop-blur-md border-b border-purple-500/20 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
               Advanced Search
             </h1>
-            <Button variant="outline" onClick={() => navigate('/dashboard')}>
+            <Button variant="glass" className="text-slate-200 border border-purple-500/30" onClick={() => navigate('/dashboard')}>
               Back to Dashboard
             </Button>
           </div>
@@ -100,7 +100,7 @@ export default function Search() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Search Box */}
-        <Card className="mb-8 border-2 border-blue-100 shadow-lg">
+        <Card className="mb-8 bg-slate-900/40 backdrop-blur-lg border-purple-500/20">
           <CardContent className="p-6">
             {/* Search Type Tabs */}
             <div className="flex gap-2 mb-6">
@@ -129,7 +129,7 @@ export default function Search() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                  className="pl-10 h-12 text-lg"
+                  className="pl-10 h-12 text-lg bg-slate-800/50 border-purple-500/30 text-slate-200 placeholder:text-gray-500"
                 />
               </div>
               <Button
@@ -156,10 +156,10 @@ export default function Search() {
                       <button
                         key={platform.value}
                         onClick={() => togglePlatform(platform.value)}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all transform hover:scale-105 ${
+                        className={`flex items-center gap-2 px-4 py-2 rounded-lg border transition-all transform hover:scale-105 ${
                           isSelected
                             ? `${platform.color} text-white border-transparent shadow-lg`
-                            : 'bg-white border-gray-200 hover:border-gray-300'
+                            : 'bg-slate-900/50 border-purple-500/20 hover:border-purple-500/40'
                         }`}
                       >
                         <Icon className="h-5 w-5" />
@@ -176,7 +176,7 @@ export default function Search() {
         {/* Results */}
         <div>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">
+            <h2 className="text-2xl font-bold text-slate-200">
               {results.length} {searchType === 'campaigns' ? 'Campaigns' : 'Influencers'} Found
             </h2>
           </div>
@@ -187,11 +187,11 @@ export default function Search() {
               <p className="mt-4 text-gray-600">Searching...</p>
             </div>
           ) : results.length === 0 ? (
-            <Card className="text-center py-16">
+            <Card className="text-center py-16 bg-slate-900/40 backdrop-blur-lg border-purple-500/20">
               <CardContent>
-                <SearchIcon className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-500 text-lg">No results found</p>
-                <p className="text-gray-400 text-sm mt-2">Try different keywords or filters</p>
+                <SearchIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-400 text-lg">No results found</p>
+                <p className="text-gray-500 text-sm mt-2">Try different keywords or filters</p>
               </CardContent>
             </Card>
           ) : (
@@ -200,11 +200,11 @@ export default function Search() {
                 results.map((campaign: any) => (
                   <Card
                     key={campaign._id}
-                    className="border-2 hover:border-blue-300 transition-all hover:shadow-xl group animate-in fade-in duration-500"
+                    className="border border-purple-500/20 bg-slate-900/40 hover:border-purple-500/50 transition-all hover:shadow-xl group animate-in fade-in duration-500"
                   >
                     <CardHeader>
                       <div className="flex justify-between items-start">
-                        <CardTitle className="text-xl group-hover:text-blue-600 transition-colors">
+                        <CardTitle className="text-xl text-slate-200 group-hover:text-purple-400 transition-colors">
                           {campaign.title}
                         </CardTitle>
                         <Badge className="bg-green-100 text-green-700">{campaign.status || 'open'}</Badge>
@@ -220,19 +220,19 @@ export default function Search() {
                         ))}
                       </div>
                       <div className="grid grid-cols-2 gap-3">
-                        <div className="bg-green-50 rounded-lg p-3">
+                        <div className="bg-emerald-500/10 rounded-lg p-3 border border-emerald-500/30">
                           <div className="flex items-center gap-2">
-                            <DollarSign className="h-4 w-4 text-green-600" />
-                            <span className="text-xs text-green-700">Budget</span>
+                            <DollarSign className="h-4 w-4 text-emerald-400" />
+                            <span className="text-xs text-emerald-300">Budget</span>
                           </div>
-                          <p className="text-lg font-bold text-green-700">${campaign.budget?.toLocaleString() || 0}</p>
+                          <p className="text-lg font-bold text-emerald-300">₹{campaign.budget?.toLocaleString('en-IN') || 0}</p>
                         </div>
-                        <div className="bg-blue-50 rounded-lg p-3">
+                        <div className="bg-blue-500/10 rounded-lg p-3 border border-blue-500/30">
                           <div className="flex items-center gap-2">
                             <Users className="h-4 w-4 text-blue-600" />
-                            <span className="text-xs text-blue-700">Min Followers</span>
+                            <span className="text-xs text-blue-300">Min Followers</span>
                           </div>
-                          <p className="text-lg font-bold text-blue-700">{campaign.minFollowers?.toLocaleString() || 0}</p>
+                          <p className="text-lg font-bold text-blue-300">{campaign.minFollowers?.toLocaleString() || 0}</p>
                         </div>
                       </div>
                       <Button className="w-full mt-4 bg-gradient-to-r from-blue-600 to-indigo-600">
@@ -245,33 +245,45 @@ export default function Search() {
                 results.map((influencer: any) => (
                   <Card
                     key={influencer._id}
-                    className="border-2 hover:border-purple-300 transition-all hover:shadow-xl group animate-in fade-in duration-500"
+                    className="border border-purple-500/20 bg-slate-900/40 hover:border-purple-500/50 transition-all hover:shadow-xl group animate-in fade-in duration-500"
                   >
                     <CardHeader>
                       <CardTitle className="text-xl">{influencer.name}</CardTitle>
-                      <p className="text-sm text-gray-600">{influencer.email}</p>
+                      <p className="text-sm text-gray-400">{influencer.email}</p>
                       <Badge className="w-fit mt-2 capitalize">{influencer.role}</Badge>
                     </CardHeader>
                     <CardContent>
                       {influencer.socialProfiles?.length > 0 && (
                         <div className="space-y-2">
                           {influencer.socialProfiles.map((profile: any, idx: number) => (
-                            <div key={idx} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                            <div key={idx} className="flex items-center justify-between bg-slate-800/60 border border-purple-500/20 rounded-lg p-3">
                               <div>
-                                <p className="font-semibold capitalize">{profile.platform}</p>
-                                <p className="text-sm text-gray-600">@{profile.handle}</p>
+                                <p className="font-semibold capitalize text-slate-200">{profile.platform}</p>
+                                <p className="text-sm text-gray-400">@{profile.handle}</p>
                               </div>
                               <div className="text-right">
-                                <p className="text-lg font-bold text-blue-600">{profile.followersCount?.toLocaleString()}</p>
+                                <p className="text-lg font-bold text-indigo-300">{profile.followersCount?.toLocaleString()}</p>
                                 <p className="text-xs text-gray-500">followers</p>
                               </div>
                             </div>
                           ))}
                         </div>
                       )}
-                      <Button className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600">
-                        Send Message
-                      </Button>
+                      {user.role === 'company' && (
+                        <Button 
+                          className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600"
+                          onClick={async () => {
+                            try {
+                              await messagesApi.send({ to: influencer._id, text: 'Hi! Let\'s discuss a collaboration.' });
+                              navigate('/messages');
+                            } catch (e: any) {
+                              console.error(e);
+                            }
+                          }}
+                        >
+                          Message
+                        </Button>
+                      )}
                     </CardContent>
                   </Card>
                 ))

@@ -23,6 +23,15 @@ exports.getAll = async (req, res) => {
   }
 };
 
+exports.getMine = async (req, res) => {
+  try {
+    const items = await Startup.find({ createdBy: req.user._id }).sort({ createdAt: -1 });
+    res.json(items);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 exports.getOne = async (req, res) => {
   try {
     const s = await Startup.findById(req.params.id).populate("createdBy", "name email");

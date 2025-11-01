@@ -1,3 +1,75 @@
+# CREATERRA — Creator/Brand Collaboration Platform
+
+A full‑stack platform for brands and influencers to run real‑time campaigns, messaging, reels/posts, payments (simulated), and more.
+
+## Tech
+- Frontend: Vite + React + TypeScript + Tailwind (glass/aurora UI)
+- Backend: Node.js + Express + MongoDB (Mongoose)
+- Realtime: Socket.IO (events scaffolded)
+
+## Quick start
+```bash
+# 1) Install deps
+npm --prefix server install
+npm --prefix client install
+
+# 2) Configure env
+cp server/.env.example server/.env
+cp client/.env.example client/.env
+
+# 3) Run dev
+npm --prefix server run dev
+npm --prefix client run dev
+# Frontend http://localhost:8080  |  API http://localhost:5000/api
+```
+
+## Environment
+Create the following files (never commit secrets):
+
+`server/.env`
+```
+MONGO_URI=mongodb://127.0.0.1:27017/createrra
+JWT_SECRET=replace-me
+```
+
+`client/.env`
+```
+VITE_API_URL=http://localhost:5000/api
+```
+
+> TIP: For cloud deploys, configure environment variables on the host (Render, Railway, Vercel, etc.).
+
+## Scripts
+- server: `npm run dev` (nodemon), `npm start`
+- client: `npm run dev`, `npm run build`, `npm run preview`
+
+## Features
+- Lux landing + dashboard (aurora/glass, animated counters)
+- Campaigns with min‑followers, payments (simulated), ratings
+- Messaging with rules (influencer→influencer; influencer→company only if accepted or company initiated)
+- Reels/Posts with media + optional audio track, likes (per‑user), comments drawer, share to DM
+- Uploads endpoint (local disk) for images/video/audio
+
+## Security & compliance
+NEVER commit secrets or private data.
+- Keep `.env*`, keys, service accounts OUT of Git.
+- Use `.env.example` for variable names only.
+- Add test/demo data that contains no real PII.
+
+See the checklist below.
+
+## Git hygiene / .gitignore
+We ignore secrets, builds, caches, and local uploads. Review `.gitignore` before committing.
+
+## API (selected)
+- `POST /api/upload` → { url }
+- Posts: `GET /api/posts`, `POST /api/posts`, `POST /api/posts/:id/like`, `GET/POST /api/posts/:id/comments`
+- Messages: `POST /api/messages`, `GET /api/messages/thread/:userId`
+- Campaigns: `GET /api/campaigns`, `POST /api/campaigns`, `DELETE /api/campaigns/:id`
+
+## License
+Proprietary – internal project.
+
 # Collab Platform
 
 A full-stack collaboration platform connecting influencers with startups/companies for marketing campaigns.

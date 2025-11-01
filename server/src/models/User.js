@@ -2,11 +2,14 @@ const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
 const socialProfileSchema = new mongoose.Schema({
-  platform: { type: String, enum: ["instagram", "youtube", "tiktok", "other"], default: "other" },
+  platform: { type: String, enum: ["instagram", "youtube", "tiktok", "twitter", "linkedin", "facebook", "other"], default: "other" },
   handle: String,
   followersCount: { type: Number, default: 0 },
   verified: { type: Boolean, default: false },
-  proofUrl: String // link to screenshot or analytics (for manual verification)
+  proofUrl: String,       // link to screenshot or analytics (for manual verification)
+  profileUrl: String,     // public profile URL
+  screenshotUrl: String,  // optional hosted screenshot
+  reach: { type: Number, default: 0 } // estimated average reach
 });
 
 const userSchema = new mongoose.Schema(
@@ -33,7 +36,8 @@ const userSchema = new mongoose.Schema(
       id: String,
       name: String,
       earnedAt: { type: Date, default: Date.now }
-    }]
+    }],
+    avatarUrl: String
   },
   { timestamps: true }
 );
