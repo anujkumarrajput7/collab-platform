@@ -1,9 +1,16 @@
 'use client'
 import { createContext, useContext, useState, useEffect } from 'react'
 
+interface User {
+  _id: string
+  name: string
+  email: string
+  role: 'influencer' | 'company' | 'admin'
+}
+
 interface AuthContextType {
-  user: any
-  login: (token: string) => void
+  user: User | null
+  login: (token: string, userData: User) => void
   logout: () => void
   isAuthenticated: boolean
 }
@@ -11,17 +18,29 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | null>(null)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState(null)
+  const [user, setUser] = useState<User | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
-  const login = (token: string) => {
+  useEffect(() => {
+    // Check for existing token on mount
+    const token = localStorage.getItem('token')
+    const userData = localStorage.getItem('user')
+    if (token && userData) {
+      setUser(JSON.parse(userData))
+      setIsAuthenticated(true)
+    }
+  }, [])
+
+  const login = (token: string, userData: User) => {
     localStorage.setItem('token', token)
-    setUser({ email: 'user@example.com' }) // Temporary user data
+    localStorage.setItem('user', JSON.stringify(userData))
+    setUser(userData)
     setIsAuthenticated(true)
   }
 
   const logout = () => {
     localStorage.removeItem('token')
+    localStorage.removeItem('user')
     setUser(null)
     setIsAuthenticated(false)
   }

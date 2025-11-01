@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 require("dotenv").config();
 const connectDB = require("./config/db");
 const errorHandler = require("./middleware/errorMiddleware");
@@ -13,6 +14,13 @@ const reviewRoutes = require("./routes/review.routes");
 const messageRoutes = require("./routes/message.routes");
 
 const app = express();
+
+// Enable CORS for frontend
+app.use(cors({
+  origin: 'http://localhost:8080',
+  credentials: true
+}));
+
 app.use(express.json());
 
 // connect DB

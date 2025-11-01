@@ -4,6 +4,9 @@ const influencerController = require("../controllers/influencerController");
 const auth = require("../middleware/authMiddleware");
 const role = require("../middleware/roleMiddleware");
 
+// get all influencers (for messaging)
+router.get("/", auth, influencerController.getAll);
+
 // get own profile
 router.get("/me", auth, influencerController.me);
 
