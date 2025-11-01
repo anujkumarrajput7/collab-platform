@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useEffect, useState } from 'react';
-import { campaignsApi, paymentsApi } from '@/lib/api';
+import { campaignsApi, paymentsApi, postsApi, influencersApi, applicationsApi } from '@/lib/api';
 import { useToast } from '@/hooks/use-toast';
 import { MessageSquare, TrendingUp, Users, IndianRupee, Briefcase, Award, Bell, Settings, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,10 @@ export default function Dashboard() {
   const [campaigns, setCampaigns] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [stories, setStories] = useState<any[]>([]);
+  const [engagement, setEngagement] = useState<number>(66);
+  const [needsOnboarding, setNeedsOnboarding] = useState(false);
+  const [tasks, setTasks] = useState<any[]>([]);
   const [myStartupId, setMyStartupId] = useState<string | null>((user as any)?.startupId || null);
 
   useEffect(() => {
@@ -44,6 +48,51 @@ export default function Dashboard() {
 
     fetchCampaigns();
   }, [isAuthenticated, navigate, toast]);
+
+  // Load stories (last 24h reels/posts with media)
+  useEffect(() => {
+    const loadStories = async () => {
+      try {
+        const feed: any[] = await postsApi.feed();
+        const dayAgo = Date.now() - 24*60*60*1000;
+        const items = (feed || []).filter(p => p.mediaUrl && new Date(p.createdAt).getTime() >= dayAgo);
+        setStories(items.slice(0, 20));
+      } catch {}
+    };
+    loadStories();
+  }, []);
+
+  // Compute Engagement Index & onboarding state
+  useEffect(() => {
+    const loadMe = async () => {
+      try {
+        const me: any = await influencersApi.me();
+        if (me?.role === 'influencer') {
+          // Simple index: rating*15 + campaignsCompleted*2 + bestStreak*3 (capped at 100)
+          const s = me.stats || {};
+          const idx = Math.min(100, Math.round((s.rating || 5)*15 + (s.campaignsCompleted||0)*2 + (s.bestStreak||0)*3));
+          setEngagement(idx);
+          setNeedsOnboarding(!me.socialProfiles || me.socialProfiles.length === 0);
+        }
+        // Build task list
+        try {
+          const apps: any[] = await applicationsApi.list();
+          const t: any[] = [];
+          if (me?.role === 'company') {
+            const pending = (apps||[]).filter(a => a.status === 'pending');
+            if (pending.length > 0) t.push({ label: `${pending.length} application(s) awaiting review`, action: () => navigate('/applications') });
+          }
+          if (me?.role === 'influencer') {
+            const accepted = (apps||[]).filter(a => a.status === 'accepted');
+            if (accepted.length > 0) t.push({ label: `${accepted.length} accepted campaign(s) — submit proof`, action: () => navigate('/applications') });
+            if (!me.socialProfiles || me.socialProfiles.length === 0) t.push({ label: 'Add social profile to unlock campaigns', action: () => navigate('/settings') });
+          }
+          setTasks(t);
+        } catch {}
+      } catch {}
+    };
+    loadMe();
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -89,12 +138,18 @@ export default function Dashboard() {
               >
                 <Search className="h-5 w-5" />
               </Button>
-              <Button onClick={() => navigate('/feed')} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">
-                Feed
-              </Button>
-              <Button onClick={() => navigate('/reels')} className="bg-gradient-to-r from-pink-600 to-orange-600 hover:from-pink-700 hover:to-orange-700">
-                Reels
-              </Button>
+              {user.role === 'influencer' && (
+                <>
+                  <Button onClick={() => navigate('/feed')} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700">Feed</Button>
+                  <Button onClick={() => navigate('/reels')} className="bg-gradient-to-r from-pink-600 to-orange-600 hover:from-pink-700 hover:to-orange-700">Reels</Button>
+                </>
+              )}
+              {user.role === 'company' && (
+                <>
+                  <Button onClick={() => navigate('/applications')} className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700">Applications</Button>
+                  <Button onClick={() => navigate('/startups')} className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">Startups</Button>
+                </>
+              )}
               {user.role === 'admin' && (
                 <Button onClick={() => navigate('/admin')} className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700">
                   Admin
@@ -145,19 +200,21 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stories ring */}
-        <div className="flex gap-4 overflow-x-auto pb-4 mb-6">
-          {[...Array(12)].map((_,i)=> (
-            <div key={i} className="flex flex-col items-center gap-2">
-              <div className="p-[3px] rounded-full bg-gradient-to-tr from-purple-500 via-pink-500 to-yellow-500">
-                <div className="rounded-full bg-slate-900 p-[2px]">
-                  <img src={`https://i.pravatar.cc/100?img=${i+5}`} className="h-14 w-14 rounded-full object-cover" />
+        {/* Stories ring (only if there are recent stories) */}
+        {stories.length > 0 && (
+          <div className="flex gap-4 overflow-x-auto pb-4 mb-6">
+            {stories.map((s:any, i:number)=> (
+              <div key={s._id || i} className="flex flex-col items-center gap-2">
+                <div className="p-[3px] rounded-full bg-gradient-to-tr from-purple-500 via-pink-500 to-yellow-500">
+                  <div className="rounded-full bg-slate-900 p-[2px]">
+                    <img src={assetUrl(s.author?.avatarUrl) || assetUrl(s.mediaUrl)} className="h-14 w-14 rounded-full object-cover" />
+                  </div>
                 </div>
+                <span className="text-xs text-gray-400 truncate max-w-[80px]">{s.author?.name || 'Story'}</span>
               </div>
-              <span className="text-xs text-gray-400">Story {i+1}</span>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
         {/* Luxury Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card className="relative overflow-hidden bg-gradient-to-br from-purple-700 to-indigo-700 text-white border-0 shadow-2xl">
@@ -165,8 +222,8 @@ export default function Dashboard() {
             <CardContent className="p-6 relative">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-100 text-sm font-medium">Brand Score</p>
-                  <h3 className="text-3xl font-bold mt-2">{Math.min(100, (campaigns.length*7)+66)}%</h3>
+                  <p className="text-purple-100 text-sm font-medium">Engagement Index</p>
+                  <h3 className="text-3xl font-bold mt-2">{engagement}%</h3>
                 </div>
                 <div className="h-12 w-12 rounded-full bg-white/20 grid place-items-center">🌟</div>
               </div>
@@ -221,6 +278,26 @@ export default function Dashboard() {
           </Card>
         </div>
 
+        {/* Onboarding banner for influencers */}
+        {needsOnboarding && (
+          <div className="mb-6 p-4 rounded-xl border border-yellow-500/30 bg-yellow-500/10 text-yellow-200">
+            Complete your profile: add a social account in Settings → Social Media to unlock campaigns.
+          </div>
+        )}
+        {/* My Tasks */}
+        {tasks.length > 0 && (
+          <Card className="bg-slate-900/50 backdrop-blur-xl border-purple-500/30 p-4 mb-6">
+            <div className="flex items-center justify-between mb-2"><h3 className="text-white font-semibold">My Tasks</h3></div>
+            <ul className="space-y-2">
+              {tasks.map((t, i) => (
+                <li key={i} className="flex items-center justify-between text-gray-200">
+                  <span>• {t.label}</span>
+                  <Button size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600" onClick={t.action}>Open</Button>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        )}
         {/* Live Storm Dashboard */}
         <Card className="bg-slate-900/50 backdrop-blur-2xl border-purple-500/30 p-6 mb-8 relative shadow-[0_10px_40px_-10px_rgba(59,130,246,0.35)]">
           <LiveStormDashboard />

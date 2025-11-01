@@ -2,8 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from './lib/AuthContext';
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from './lib/AuthContext';
 import { SocketProvider } from './lib/SocketContext';
 
 // Pages
@@ -23,6 +23,11 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+const RequireAuth = ({ children }: { children: JSX.Element }) => {
+  const { isAuthenticated } = useAuth();
+  return isAuthenticated ? children : <Navigate to="/login" replace />;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -35,15 +40,16 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/search" element={<Search />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/feed" element={<Feed />} />
-            <Route path="/reels" element={<Reels />} />
-            <Route path="/admin" element={<AdminReview />} />
-            <Route path="/startups" element={<Startups />} />
-            <Route path="/applications" element={<Applications />} />
+
+            <Route path="/dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
+            <Route path="/messages" element={<RequireAuth><Messages /></RequireAuth>} />
+            <Route path="/search" element={<RequireAuth><Search /></RequireAuth>} />
+            <Route path="/settings" element={<RequireAuth><Settings /></RequireAuth>} />
+            <Route path="/feed" element={<RequireAuth><Feed /></RequireAuth>} />
+            <Route path="/reels" element={<RequireAuth><Reels /></RequireAuth>} />
+            <Route path="/admin" element={<RequireAuth><AdminReview /></RequireAuth>} />
+            <Route path="/startups" element={<RequireAuth><Startups /></RequireAuth>} />
+            <Route path="/applications" element={<RequireAuth><Applications /></RequireAuth>} />
             {/* Catch-all route for 404 */}
             <Route path="*" element={<NotFound />} />
           </Routes>

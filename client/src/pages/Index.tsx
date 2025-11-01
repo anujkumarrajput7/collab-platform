@@ -62,8 +62,12 @@ export default function Index() {
           <div className="flex justify-between items-center">
             <img src="/logo.png" alt="CREATERRA" className="h-10 w-auto object-contain drop-shadow-[0_4px_20px_rgba(99,102,241,0.5)]" />
             <div className="flex gap-2">
-              <Link to="/reels"><Button variant="ghost" className="text-white hover:bg-white/10">Reels</Button></Link>
-              <Link to="/feed"><Button variant="ghost" className="text-white hover:bg-white/10">Feed</Button></Link>
+              {isAuthenticated && (
+                <>
+                  <Link to="/reels"><Button variant="ghost" className="text-white hover:bg-white/10">Reels</Button></Link>
+                  <Link to="/feed"><Button variant="ghost" className="text-white hover:bg-white/10">Feed</Button></Link>
+                </>
+              )}
               <Link to="/login">
                 <Button variant="outline" className="border-white/20 text-white hover:bg-white/10">Login</Button>
               </Link>
@@ -120,16 +124,7 @@ export default function Index() {
               </div>
             </div>
 
-            {/* Live activity marquee */}
-            {activity.length > 0 && (
-              <div className="mt-10 overflow-hidden">
-                <div className="animate-[marquee_25s_linear_infinite] whitespace-nowrap text-gray-300/90">
-                  {activity.map((a:any, i:number)=> (
-                    <span key={i} className="mx-6">⚡ {a.influencer?.name || 'An influencer'} {a.status.replace('_',' ')} “{a.campaign?.title}”</span>
-                  ))}
-                </div>
-              </div>
-            )}
+            {/* Live activity removed to avoid showing user names on public landing */}
           </div>
         </div>
 

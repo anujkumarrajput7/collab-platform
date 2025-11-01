@@ -210,6 +210,10 @@ export const influencersApi = {
     return apiCall('/influencers', { method: 'GET' });
   },
   
+  me: async () => {
+    return apiCall('/influencers/me', { method: 'GET' });
+  },
+
   addSocialProfile: async (data: {
     platform: string;
     handle: string;
