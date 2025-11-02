@@ -15,6 +15,8 @@ export default function Logo({ size = 'md', animated = true }: LogoProps) {
       src="/logo.png" 
       alt="CREATERRA Logo" 
       className={`${sizes[size]} w-auto object-contain ${animated ? 'hover:scale-105 transition-transform' : ''}`}
+      width={0}
+      height={0}
     />
   );
 }
